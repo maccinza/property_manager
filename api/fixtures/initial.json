@@ -1,0 +1,19 @@
+[
+{
+    "model": "accounts.user",
+    "pk": 1,
+    "fields": {
+        "password": "pbkdf2_sha256$36000$riY6RqgMrxvQ$dvhwaXxbITuMXIw4G86VKNHiAHalVYBMvE/tW3Wn6Oo=",
+        "last_login": "2017-09-19T13:41:42.223Z",
+        "is_superuser": true,
+        "first_name": "John",
+        "last_name": "Doe",
+        "email": "john@fake.mail",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2017-09-19T13:40:42.223Z",
+        "groups": [],
+        "user_permissions": []
+    }
+}
+]

@@ -1,0 +1,36 @@
+version: '2'
+services:
+  mysql:
+    build: docker/mysql
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=api
+      - MYSQL_ROOT_PASSWORD=root
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci --init-connect='SET NAMES UTF8;'
+    ports:
+      - "3306:3306"
+  web:
+    build: .
+    working_dir: /code/api
+    volumes:
+      - .:/code
+    environment:
+      - DJANGO_SETTINGS_MODULE=api.settings.dev
+      - PMGMT_MYSQL=database
+      - PMGMT_MYSQL_PWD=root
+      - PMGMT_MYSQL_PORT=3306
+      - PMGMT_LOG_HANDLER=console
+      - DEBUG=True
+      - FORCE_SSL=false
+      - PYTHONIOENCODING=UTF-8
+    ports:
+      - "8000:8000"
+    links:
+      - mysql:database
+    entrypoint:
+        /code/docker/entrypoint.sh
+
+volumes:
+  mysql_data:
+    driver: local

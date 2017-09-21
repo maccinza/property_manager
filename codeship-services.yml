@@ -1,0 +1,22 @@
+mysql:
+    build: docker/mysql
+    environment:
+        - MYSQL_DATABASE=api
+        - MYSQL_ROOT_PASSWORD=root
+web:
+    build: .
+    working_dir: /code/api
+    volumes:
+        - .:/code
+    links:
+        - mysql:database
+    environment:
+        - PYTHONPATH=.
+        - DJANGO_SETTINGS_MODULE=api.settings.dev
+        - PMGMT_MYSQL=database
+        - PMGMT_MYSQL_PWD=root
+        - PMGMT_MYSQL_PORT=3306
+        - PMGMT_LOG_HANDLER=console
+        - DEBUG=True
+    entrypoint:
+        /code/docker/entrypoint.sh
