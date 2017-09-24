@@ -35,6 +35,10 @@ class UserManager(BaseUserManager):
 
         return self._create_user(email, password, **extra_fields)
 
+    def get_queryset(self):
+        return super(UserManager, self).get_queryset().filter(
+            tenant__isnull=True, landlord__isnull=True)
+
 
 class LandlordManager(BaseUserManager):
     use_in_migrations = True

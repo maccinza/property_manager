@@ -1,6 +1,7 @@
 # -*- encoding: UTF-8 -*-
 from django.test import TestCase
 from django.core.exceptions import ValidationError
+from django.db.utils import IntegrityError
 
 from accounts.models import User, Landlord, Tenant
 
@@ -78,6 +79,58 @@ class TestUserModel(TestCase):
         self.assertEqual(e.exception.message_dict, expected_errors)
         self.assertEqual(User.objects.count(), 0)
 
+    def test_filter_user(self):
+        """Should filter User by its attributes"""
+        self.assertEqual(User.objects.count(), 0)
+        User.objects.create_user(
+            first_name='Ayn', last_name='Rand',
+            email='arand@test.com', password='abc123!', is_staff=True,
+            is_superuser=True)
+        User.objects.create_user(
+            first_name='Margaret', last_name='Thatcher',
+            email='mthatcher@test.com', password='abc123!', is_staff=True)
+        self.assertEqual(User.objects.count(), 2)
+        filtered = User.objects.filter(first_name='Margaret')
+        self.assertEqual(len(filtered), 1)
+        self.assertEqual(filtered[0].last_name, 'Thatcher')
+
+    def test_manager_get_users_only(self):
+        """Should get only User instances through UserManager"""
+        self.assertEqual(User.objects.count(), 0)
+        User.objects.create_user(
+            first_name='Ayn', last_name='Rand',
+            email='arand@test.com', password='abc123!', is_staff=True,
+            is_superuser=True)
+        Landlord.objects.create_user(
+            first_name='Margaret', last_name='Thatcher',
+            email='mthatcher@test.com', password='abc123!', is_staff=True)
+        Tenant.objects.create_user(
+            first_name='Edson', last_name='Arantes',
+            email='earantes@test.com', password='abc123!', is_staff=True)
+        self.assertEqual(User.objects.count(), 1)
+        filtered = User.objects.all()
+        self.assertEqual(len(filtered), 1)
+        self.assertEqual(filtered[0].last_name, 'Rand')
+
+    def test_users_uniqueness(self):
+        """
+        Should fail to create user with the same first name, last name, and
+        email
+        """
+        # creates a user
+        User.objects.create_user(
+            first_name='Ayn', last_name='Rand',
+            email='arand@test.com', password='abc123!', is_staff=True,
+            is_superuser=True)
+        # should fail to create user with same name and e-mail
+        expected = ('User with this Email, First name and Last name already '
+                    'exists.')
+        with self.assertRaises(ValidationError) as raised:
+            User.objects.create_user(
+                first_name='Ayn', last_name='Rand',
+                email='arand@test.com', password='abc123!', is_staff=True)
+        self.assertIn(expected, raised.exception.message_dict['__all__'])
+
 
 class TestLandlordModel(TestCase):
 
@@ -151,6 +204,21 @@ class TestLandlordModel(TestCase):
         self.assertEqual(landlord.is_staff, False)
         self.assertTrue(landlord.check_password('abc123!'))
 
+    def test_landlord_uniqueness(self):
+        """Should fail to create landlord with the same email"""
+        email = 'arand@test.com'
+        # creates a user
+        Landlord.objects.create_user(
+            first_name='Ayn', last_name='Rand',
+            email=email, password='abc123!')
+        # should fail to create user with same name and e-mail
+        expected = "Duplicate entry '{}' for key 'email'".format(email)
+        with self.assertRaises(IntegrityError) as raised:
+            Landlord.objects.create_user(
+                first_name='Ayn', last_name='Rand',
+                email=email, password='abc123!')
+        self.assertIn(expected, raised.exception.args)
+
 
 class TestTenantModel(TestCase):
 
@@ -222,3 +290,18 @@ class TestTenantModel(TestCase):
         self.assertEqual(tenant.is_superuser, False)
         self.assertEqual(tenant.is_staff, False)
         self.assertTrue(tenant.check_password('abc123!'))
+
+    def test_tenant_uniqueness(self):
+        """Should fail to create tenant with the same email"""
+        email = 'arand@test.com'
+        # creates a user
+        Tenant.objects.create_user(
+            first_name='Ayn', last_name='Rand',
+            email=email, password='abc123!')
+        # should fail to create user with same name and e-mail
+        expected = "Duplicate entry '{}' for key 'email'".format(email)
+        with self.assertRaises(IntegrityError) as raised:
+            Tenant.objects.create_user(
+                first_name='Ayn', last_name='Rand',
+                email=email, password='abc123!')
+        self.assertIn(expected, raised.exception.args)
