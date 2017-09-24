@@ -31,6 +31,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ['first_name', 'last_name']
     # email will also be required as it's USERNAME_FIELD
 
+    class Meta:
+        unique_together = ('email', 'first_name', 'last_name')
+
     def get_full_name(self):
         """
         Returns the first_name plus the last_name, with a space in between.
