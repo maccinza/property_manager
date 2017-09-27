@@ -2,4 +2,6 @@
 ipdb==0.10.3
 mock==2.0.0
 flake8==3.4.1
-
+pathlib2==2.1.0
+ipython==4.1.2
+enum34==1.1.6
