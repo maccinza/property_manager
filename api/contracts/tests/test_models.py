@@ -274,3 +274,24 @@ class TestContract(TestCase):
         self.assertEqual(Contract.objects.count(), 1)
         remaining = Contract.objects.get(tenant=self.tenant_two)
         self.check_contract(self.contract_two_data, remaining)
+
+    def test_create_contract_invalid_dates(self):
+        """
+        Should raise ValidationError when trying to create a contract for a
+        with ending date smaller than starting date
+        """
+        # checks db does not contain contracts
+        self.assertEqual(Contract.objects.count(), 0)
+        invalid_contract_data = {
+            'start_date': '2017-10-27',
+            'end_date': '2017-01-27',
+            'property': self.property_one,
+            'tenant': self.tenant_two,
+            'rent': 1000.00
+        }
+        expected = (u'Invalid dates for contract. Ending date come after '
+                    'starting date.')
+        contract = Contract(**invalid_contract_data)
+        with self.assertRaises(ValidationError) as raised:
+            contract.save()
+        self.assertIn(expected, raised.exception.message_dict['__all__'])
