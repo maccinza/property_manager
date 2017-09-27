@@ -20,7 +20,7 @@ class PropertyAdmin(admin.ModelAdmin):
     list_display = ('get_landlord_name', 'category', 'beds', 'city', 'street',
                     'number', 'zip_code')
     list_filter = ('beds', 'category')
-    search_fields = ('landlord__first_name', 'landlord__first_name',
+    search_fields = ('landlord__first_name', 'landlord__last_name',
                      'description', 'city', 'street', 'zip_code')
     ordering = ('id',)
 
