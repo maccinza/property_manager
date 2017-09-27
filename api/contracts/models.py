@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
 
 from accounts.models import Tenant
 from properties.models import Property
@@ -56,3 +57,8 @@ class Contract(models.Model):
                 raise ValidationError(
                     u'Invalid dates for contract. Ending date come after '
                     'starting date.')
+
+    def get_admin_url(self):
+        info = (self._meta.app_label, self._meta.model_name)
+        return reverse('admin:{0}_{1}_change'.format(info[0], info[1]),
+                       args=(self.pk,))
