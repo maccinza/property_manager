@@ -295,3 +295,11 @@ class TestContract(TestCase):
         with self.assertRaises(ValidationError) as raised:
             contract.save()
         self.assertIn(expected, raised.exception.message_dict['__all__'])
+
+    def test_get_contract_admin_url(self):
+        """Should successfully retrieve admin url for given contract"""
+        contract = Contract(**self.contract_one_data)
+        contract.save()
+        expected_url = ('/admin/contracts/contract/{}/'
+                        'change/').format(contract.id)
+        self.assertEqual(expected_url, contract.get_admin_url())
