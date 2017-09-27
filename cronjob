@@ -1,0 +1,1 @@
+0 20 * * Sun python manage.py check_contracts adminmail@gmail.com
