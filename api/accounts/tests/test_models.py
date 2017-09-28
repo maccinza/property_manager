@@ -2,6 +2,7 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
+from django.conf import settings
 
 from accounts.models import User, Landlord, Tenant
 
@@ -213,6 +214,13 @@ class TestLandlordModel(TestCase):
             email=email, password='abc123!')
         # should fail to create user with same name and e-mail
         expected = "Duplicate entry '{}' for key 'email'".format(email)
+        db_backend = settings.DATABASES['default']['ENGINE']
+        db_backend = settings.DATABASES['default']['ENGINE']
+        if db_backend.endswith('sqlite3'):
+            expected = ('UNIQUE constraint failed: accounts_user.email, '
+                        'accounts_user.first_name, accounts_user.last_name')
+        else:
+            expected = "Duplicate entry '{}' for key 'email'".format(email)
         with self.assertRaises(IntegrityError) as raised:
             Landlord.objects.create_user(
                 first_name='Ayn', last_name='Rand',
@@ -299,7 +307,12 @@ class TestTenantModel(TestCase):
             first_name='Ayn', last_name='Rand',
             email=email, password='abc123!')
         # should fail to create user with same name and e-mail
-        expected = "Duplicate entry '{}' for key 'email'".format(email)
+        db_backend = settings.DATABASES['default']['ENGINE']
+        if db_backend.endswith('sqlite3'):
+            expected = ('UNIQUE constraint failed: accounts_user.email, '
+                        'accounts_user.first_name, accounts_user.last_name')
+        else:
+            expected = "Duplicate entry '{}' for key 'email'".format(email)
         with self.assertRaises(IntegrityError) as raised:
             Tenant.objects.create_user(
                 first_name='Ayn', last_name='Rand',
