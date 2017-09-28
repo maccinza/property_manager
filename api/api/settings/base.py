@@ -127,7 +127,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 HOST_NAME = os.environ.get('HOST_NAME', 'http://localhost')
-HOST_PORT = os.environ.get('HOST_PORT', '8080')
+HOST_PORT = os.environ.get('HOST_PORT', '8000')
 
 # logging configuration
 LOGGING = {

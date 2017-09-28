@@ -113,7 +113,7 @@ class TestContractsReportCommand(TestCase):
         """
         call_command('check_contracts', 'report@fake.mail')
         content, mimetype = mail.outbox[0].alternatives[0]
-        self.assertIn('<a href=\'http://localhost:8080/admin/contracts/'
+        self.assertIn('<a href=\'http://localhost:8000/admin/contracts/'
                       'contract/{}/change/\'> '
                       '{} </a>'.format(self.contract_one.id,
                                        self.contract_one.id), content)
@@ -123,7 +123,7 @@ class TestContractsReportCommand(TestCase):
         self.assertIn('<td> John Snow </td>', content)
         self.assertIn('<td> Agatha Christie </td>', content)
         self.assertIn('<td> 1100.00', content)
-        self.assertIn('<td> <a href=\'http://localhost:8080/admin/contracts'
+        self.assertIn('<td> <a href=\'http://localhost:8000/admin/contracts'
                       '/contract/{}/change/\'> '
                       '{} </a></td>'.format(self.contract_two.id,
                                             self.contract_two.id), content)
@@ -133,7 +133,7 @@ class TestContractsReportCommand(TestCase):
         self.assertIn('<td> Daenerys Targaryen </td>', content)
         self.assertIn('<td> John Tolkien </td>', content)
         self.assertIn('<td> 950.00', content)
-        self.assertNotIn('<td> <a href=\'http://localhost:8080/admin/contracts'
+        self.assertNotIn('<td> <a href=\'http://localhost:8000/admin/contracts'
                          '/contract/{}/change/\'> '
                          '{} </a></td>'.format(self.contract_three.id,
                                                self.contract_three.id),

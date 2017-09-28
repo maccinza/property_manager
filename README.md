@@ -53,5 +53,40 @@ add these line to your ``.bashrc``
 export DOCKER_HOST=tcp://127.0.0.1:4243
 ```
 
-## Option II - Using local virtualenv
-...
+## Option II - Using local environment
+
+If you go with this option you don't need to be concerned about anything. You may completely rely on the provided makefile.
+
+
+## Running
+
+If you went with `Option I - Using Docker`, you may run the following commands from your shell:
+
+```
+# run tests
+$ make docker-test
+```
+
+```
+# run application locally
+$ make docker-run
+```
+
+If you went with `Option II - Using local environment`, you may run the following commands from your shell:
+```
+# run tests
+$ make local-test
+```
+
+```
+# run application locally
+$ make local-run
+```
+
+When running the application, it will be available at `http://localhost:8000/admin`
+There is a pre-loaded user with superuser privileges whose credentials are:
+
+```
+username: david.farrington@gamesys.co.uk
+password: r007admpwd
+```

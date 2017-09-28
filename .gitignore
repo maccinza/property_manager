@@ -97,3 +97,6 @@ codeship.aes
 codeship_aws.env
 
 node_modules/
+
+# sqlite files
+*.sqlite
