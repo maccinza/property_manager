@@ -1,75 +1,64 @@
 # -*- encoding: UTF-8 -*-
+import factory
 from django.test import TestCase
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 
 from properties.models import Property
 from accounts.models import Tenant, Landlord
 from contracts.models import Contract
+from contracts.tests.factories import ContractFactory
 
 
 class TestContract(TestCase):
-    def setUp(self):
-        self.landlord_one = Landlord.objects.create(
-            first_name='Marcius', last_name='Augustus',
-            email='maug@fake.mail', password='secretpwd')
-
-        self.landlord_two = Landlord.objects.create(
-            first_name='Aurelia', last_name='Stewart',
-            email='aust@fake.mail', password='secretpwd')
-
-        self.property_one = Property.objects.create(
-            street='Baker Street', number='102', zip_code='NW16XE',
-            city='London', description='Some fantanstic description',
-            category='house', beds='2', landlord=self.landlord_one)
-
-        self.property_two = Property.objects.create(
-            street='First Street', number='897', zip_code='NW89XE',
-            city='London', description='Another description',
-            category='flat', beds='1', landlord=self.landlord_two)
-
-        self.tenant_one = Tenant.objects.create(
-            first_name='Edson', last_name='Arantes',
-            email='earantes@test.com', password='abc123!')
-
-        self.tenant_two = Tenant.objects.create(
-            first_name='Ada', last_name='Lovelace',
-            email='alove@test.com', password='abc123!')
-
-        self.contract_one_data = {
-            'start_date': '2017-09-25',
-            'end_date': '2018-09-25',
-            'property': self.property_one,
-            'tenant': self.tenant_one,
-            'rent': 1250.25
-        }
-
-        self.contract_two_data = {
-            'start_date': '2017-10-22',
-            'end_date': '2018-05-22',
-            'property': self.property_two,
-            'tenant': self.tenant_two,
-            'rent': 875.00
-        }
-
-    def check_contract(self, values, contract):
-        """Helper method for checking contract attributes"""
-        for attribute, value in values.items():
-            if attribute == 'start_date' or attribute == 'end_date':
-                date_str = getattr(contract, attribute).strftime('%Y-%m-%d')
-                self.assertEqual(date_str, value)
-            else:
-                self.assertEqual(getattr(contract, attribute), value)
-
     def test_create_contract_successfully(self):
         """
         Should successfully create Contract when all required fields are
         provided
         """
+        # saves related objects
+        contract_data = factory.build(dict, FACTORY_CLASS=ContractFactory)
+        contract_data['property'].landlord.save()
+        contract_data['property'].save()
+        contract_data['tenant'].save()
+
         self.assertEqual(Contract.objects.count(), 0)
-        contract = Contract(**self.contract_one_data)
-        contract.save()
+        ContractFactory(**contract_data)
         self.assertEqual(Contract.objects.count(), 1)
-        self.check_contract(self.contract_one_data, contract)
+
+    def test_create_contract_successfully_with_given_valid_id(self):
+        """
+        Should successfully create Contract when given id is valid
+        """
+        self.assertEqual(Contract.objects.count(), 0)
+        contract_data = factory.build(dict, FACTORY_CLASS=ContractFactory)
+        contract_data['property'].landlord.save()
+        contract_data['property'].save()
+        contract_data['tenant'].save()
+        contract_data['id'] = 'a' * 16
+        ContractFactory(**contract_data)
+        self.assertEqual(Contract.objects.count(), 1)
+
+    def test_create_contract_with_given_invalid_id(self):
+        """
+        Should raise ValidationError when creating Contract and given
+        id is invalid
+        """
+        self.assertEqual(Contract.objects.count(), 0)
+
+        contract_data = factory.build(dict, FACTORY_CLASS=ContractFactory)
+        contract_data['id'] = 'aaaabbbbccccddd#'
+        contract_data['property'].landlord.save()
+        contract_data['property'].save()
+        contract_data['tenant'].save()
+
+        expected = {
+            'id': [('ID must be a string containing 16 alphanumeric '
+                    'lowercase characters')]}
+
+        with self.assertRaises(ValidationError) as raised:
+            Contract(**contract_data).save()
+        self.assertEqual(raised.exception.message_dict, expected)
+        self.assertEqual(Contract.objects.count(), 0)
 
     def test_create_contract_missing_start_date(self):
         """
@@ -77,11 +66,14 @@ class TestContract(TestCase):
         missing start date
         """
         self.assertEqual(Contract.objects.count(), 0)
-        del(self.contract_one_data['start_date'])
-        contract = Contract(**self.contract_one_data)
+        contract_data = factory.build(dict, FACTORY_CLASS=ContractFactory)
+        contract_data['property'].landlord.save()
+        contract_data['property'].save()
+        contract_data['tenant'].save()
+        del(contract_data['start_date'])
 
         with self.assertRaises(ValidationError) as raised:
-            contract.save()
+            Contract(**contract_data).save()
         expected = {'start_date': [u'This field cannot be null.']}
         self.assertEqual(Contract.objects.count(), 0)
         self.assertEqual(raised.exception.message_dict, expected)
@@ -92,11 +84,14 @@ class TestContract(TestCase):
         missing end date
         """
         self.assertEqual(Contract.objects.count(), 0)
-        del(self.contract_one_data['end_date'])
-        contract = Contract(**self.contract_one_data)
+        contract_data = factory.build(dict, FACTORY_CLASS=ContractFactory)
+        contract_data['property'].landlord.save()
+        contract_data['property'].save()
+        contract_data['tenant'].save()
+        del(contract_data['end_date'])
 
         with self.assertRaises(ValidationError) as raised:
-            contract.save()
+            Contract(**contract_data).save()
         expected = {'end_date': [u'This field cannot be null.']}
         self.assertEqual(Contract.objects.count(), 0)
         self.assertEqual(raised.exception.message_dict, expected)
@@ -107,11 +102,14 @@ class TestContract(TestCase):
         missing rent
         """
         self.assertEqual(Contract.objects.count(), 0)
-        del(self.contract_one_data['rent'])
-        contract = Contract(**self.contract_one_data)
+        contract_data = factory.build(dict, FACTORY_CLASS=ContractFactory)
+        contract_data['property'].landlord.save()
+        contract_data['property'].save()
+        contract_data['tenant'].save()
+        del(contract_data['rent'])
 
         with self.assertRaises(ValidationError) as raised:
-            contract.save()
+            Contract(**contract_data).save()
         expected = {'rent': [u'This field cannot be null.']}
         self.assertEqual(Contract.objects.count(), 0)
         self.assertEqual(raised.exception.message_dict, expected)
@@ -122,11 +120,14 @@ class TestContract(TestCase):
         contract with missing tenant
         """
         self.assertEqual(Contract.objects.count(), 0)
-        del(self.contract_one_data['tenant'])
-        contract = Contract(**self.contract_one_data)
+        contract_data = factory.build(dict, FACTORY_CLASS=ContractFactory)
+        contract_data['property'].landlord.save()
+        contract_data['property'].save()
+        contract_data['tenant'].save()
+        del(contract_data['tenant'])
 
         with self.assertRaises(ObjectDoesNotExist) as raised:
-            contract.save()
+            Contract(**contract_data).save()
         expected = 'Contract has no tenant.'
         self.assertEqual(Contract.objects.count(), 0)
         self.assertEqual(raised.exception.message, expected)
@@ -137,11 +138,13 @@ class TestContract(TestCase):
         contract with missing property
         """
         self.assertEqual(Contract.objects.count(), 0)
-        del(self.contract_one_data['property'])
-        contract = Contract(**self.contract_one_data)
+        contract_data = factory.build(dict, FACTORY_CLASS=ContractFactory)
+        contract_data['property'].landlord.save()
+        contract_data['tenant'].save()
+        del(contract_data['property'])
 
         with self.assertRaises(ObjectDoesNotExist) as raised:
-            contract.save()
+            Contract(**contract_data).save()
         expected = 'Contract has no property.'
         self.assertEqual(Contract.objects.count(), 0)
         self.assertEqual(raised.exception.message, expected)
@@ -154,23 +157,22 @@ class TestContract(TestCase):
         """
         # checks db does not contain contracts
         self.assertEqual(Contract.objects.count(), 0)
-        # creates a contract
-        contract = Contract(**self.contract_one_data)
-        contract.save()
-        self.assertEqual(Contract.objects.count(), 1)
+        # creates contracts
+        contract_one = ContractFactory()
+        contract_two = ContractFactory()
+        self.assertEqual(Contract.objects.count(), 2)
 
         invalid_contract_data = {
             'start_date': '2017-10-27',
             'end_date': '2018-10-27',
-            'property': self.property_one,
-            'tenant': self.tenant_two,
+            'property': contract_one.property,
+            'tenant': contract_two.tenant,
             'rent': 1000.00
         }
         expected = ('There is already another contract for this property or '
                     'for this tenant and the given dates.')
-        contract = Contract(**invalid_contract_data)
         with self.assertRaises(ValidationError) as raised:
-            contract.save()
+            Contract(**invalid_contract_data).save()
         self.assertIn(expected, raised.exception.message_dict['__all__'])
 
     def test_create_contract_same_tenant_within_date_range(self):
@@ -181,23 +183,22 @@ class TestContract(TestCase):
         """
         # checks db does not contain contracts
         self.assertEqual(Contract.objects.count(), 0)
-        # creates a contract
-        contract = Contract(**self.contract_one_data)
-        contract.save()
-        self.assertEqual(Contract.objects.count(), 1)
+        # creates a contracts
+        contract_one = ContractFactory()
+        contract_two = ContractFactory()
+        self.assertEqual(Contract.objects.count(), 2)
 
         invalid_contract_data = {
             'start_date': '2017-10-27',
             'end_date': '2018-10-27',
-            'property': self.property_two,
-            'tenant': self.tenant_one,
+            'property': contract_two.property,
+            'tenant': contract_one.tenant,
             'rent': 1000.00
         }
         expected = ('There is already another contract for this property or '
                     'for this tenant and the given dates.')
-        contract = Contract(**invalid_contract_data)
         with self.assertRaises(ValidationError) as raised:
-            contract.save()
+            Contract(**invalid_contract_data).save()
         self.assertIn(expected, raised.exception.message_dict['__all__'])
 
     def test_create_contract_same_property_not_matching_dates(self):
@@ -208,20 +209,19 @@ class TestContract(TestCase):
         # checks db does not contain contracts
         self.assertEqual(Contract.objects.count(), 0)
         # creates a contract
-        contract = Contract(**self.contract_one_data)
-        contract.save()
-        self.assertEqual(Contract.objects.count(), 1)
+        contract_one = ContractFactory()
+        contract_two = ContractFactory()
+        self.assertEqual(Contract.objects.count(), 2)
 
         contract_data = {
             'start_date': '2018-11-01',
             'end_date': '2019-11-01',
-            'property': self.property_one,
-            'tenant': self.tenant_two,
+            'property': contract_one.property,
+            'tenant': contract_two.tenant,
             'rent': 1000.00
         }
-        contract = Contract(**contract_data)
-        contract.save()
-        self.assertEqual(Contract.objects.count(), 2)
+        Contract(**contract_data).save()
+        self.assertEqual(Contract.objects.count(), 3)
 
     def test_create_contract_same_tenant_not_matching_dates(self):
         """
@@ -230,50 +230,49 @@ class TestContract(TestCase):
         """
         # checks db does not contain contracts
         self.assertEqual(Contract.objects.count(), 0)
-        # creates a contract
-        contract = Contract(**self.contract_one_data)
-        contract.save()
-        self.assertEqual(Contract.objects.count(), 1)
+        # creates contracts
+        contract_one = ContractFactory()
+        contract_two = ContractFactory()
+        self.assertEqual(Contract.objects.count(), 2)
 
         contract_data = {
             'start_date': '2018-11-01',
             'end_date': '2019-11-01',
-            'property': self.property_two,
-            'tenant': self.tenant_one,
+            'property': contract_two.property,
+            'tenant': contract_one.tenant,
             'rent': 1000.00
         }
-        contract = Contract(**contract_data)
-        contract.save()
+        Contract(**contract_data)
         self.assertEqual(Contract.objects.count(), 2)
 
     def test_filter_contract(self):
         """Should successfully filter contract by its attributes"""
         # creates contracts
-        contract = Contract(**self.contract_one_data)
-        contract.save()
-        contract = Contract(**self.contract_two_data)
-        contract.save()
+        ContractFactory()
+        contract_two = ContractFactory()
         self.assertEqual(Contract.objects.count(), 2)
 
         # filters contract by tenant
-        filtered = Contract.objects.filter(tenant=self.tenant_two)
+        filtered = Contract.objects.filter(
+            tenant=contract_two.tenant)
         self.assertEqual(len(filtered), 1)
-        self.check_contract(self.contract_two_data, filtered[0])
 
     def test_delete_contract(self):
         """Should successfully delete contract"""
         # creates contracts
-        contract = Contract(**self.contract_one_data)
-        contract.save()
-        contract = Contract(**self.contract_two_data)
-        contract.save()
+        contract_one = ContractFactory()
+        contract_two = ContractFactory()
         self.assertEqual(Contract.objects.count(), 2)
 
         # delete contract which meets condition
-        Contract.objects.filter(tenant=self.tenant_one).delete()
+        tenant = contract_one.tenant
+        Contract.objects.filter(
+            tenant__first_name=tenant.first_name).delete()
         self.assertEqual(Contract.objects.count(), 1)
-        remaining = Contract.objects.get(tenant=self.tenant_two)
-        self.check_contract(self.contract_two_data, remaining)
+        tenant = contract_two.tenant
+        remaining = Contract.objects.get(
+            tenant=tenant)
+        self.assertEqual(contract_two, remaining)
 
     def test_create_contract_invalid_dates(self):
         """
@@ -281,25 +280,25 @@ class TestContract(TestCase):
         with ending date smaller than starting date
         """
         # checks db does not contain contracts
-        self.assertEqual(Contract.objects.count(), 0)
+        contract_one = ContractFactory()
+        contract_two = ContractFactory()
+        self.assertEqual(Contract.objects.count(), 2)
         invalid_contract_data = {
             'start_date': '2017-10-27',
             'end_date': '2017-01-27',
-            'property': self.property_one,
-            'tenant': self.tenant_two,
+            'property': contract_one.property,
+            'tenant': contract_two.tenant,
             'rent': 1000.00
         }
-        expected = (u'Invalid dates for contract. Ending date come after '
-                    'starting date.')
-        contract = Contract(**invalid_contract_data)
+        expected = (u'Invalid dates for contract. Ending date should come '
+                    'after starting date.')
         with self.assertRaises(ValidationError) as raised:
-            contract.save()
+            Contract(**invalid_contract_data).save()
         self.assertIn(expected, raised.exception.message_dict['__all__'])
 
     def test_get_contract_admin_url(self):
         """Should successfully retrieve admin url for given contract"""
-        contract = Contract(**self.contract_one_data)
-        contract.save()
+        contract = ContractFactory()
         expected_url = ('/admin/contracts/contract/{}/'
                         'change/').format(contract.id)
         self.assertEqual(expected_url, contract.get_admin_url())

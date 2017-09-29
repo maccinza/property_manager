@@ -1,8 +1,9 @@
 # -*- encoding: UTF-8 -*-
+import factory
 from django.test import TestCase
 
 from accounts.models import User, Landlord
-from properties.models import Property
+from properties.tests.factories import PropertyFactory
 
 
 class TestPropertyAdmin(TestCase):
@@ -22,31 +23,13 @@ class TestPropertyAdmin(TestCase):
             is_staff=True,
             is_superuser=True)
 
-        self.landlord_one = Landlord.objects.create(
-            email='landlord@fake.mail',
-            password='secretpass',
-            first_name='John',
-            last_name='Doe'
-        )
+        self.property_one = factory.build(
+            dict, FACTORY_CLASS=PropertyFactory)
+        self.property_one['landlord'].save()
 
-        self.landlord_two = Landlord.objects.create(
-            email='yalandlord@fake.mail',
-            password='secretpass',
-            first_name='Jane',
-            last_name='Donuts'
-        )
-
-        self.property_one = {
-            'street': 'Baker Street', 'number': '102', 'zip_code': 'NW16XE',
-            'city': 'London', 'description': 'Some fantanstic description',
-            'category': 'house', 'beds': '2', 'landlord': self.landlord_one
-        }
-
-        self.property_two = {
-            'street': 'First Street', 'number': '897', 'zip_code': 'NW89XE',
-            'city': 'London', 'description': 'Another description',
-            'category': 'flat', 'beds': '1', 'landlord': self.landlord_two
-        }
+        self.property_two = factory.build(
+            dict, FACTORY_CLASS=PropertyFactory)
+        self.property_two['landlord'].save()
 
         self.client.login(email=self.credentials['email'],
                           password=self.credentials['password'])
@@ -112,7 +95,9 @@ class TestPropertyAdmin(TestCase):
         self.assertIn(self.property_two['zip_code'], content)
 
         # searches for property
-        response = self.client.get('/admin/properties/property/?q=Baker')
+        landlord = Landlord.objects.get(id=self.property_one['landlord'])
+        response = self.client.get(
+            '/admin/properties/property/?q={}'.format(landlord.first_name))
         content = response.content
         self.assertIn('table', content)
         self.assertIn(self.property_one['street'], content)
@@ -144,7 +129,8 @@ class TestPropertyAdmin(TestCase):
 
         # filters property
         response = self.client.get(
-            '/admin/properties/property/?beds__exact=1')
+            '/admin/properties/property/?beds__exact={}'.format(
+                self.property_two['beds']))
         content = response.content
         self.assertIn('table', content)
         self.assertIn(self.property_two['street'], content)

@@ -5,11 +5,12 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 
+from core.models import HashIdModel
 from accounts.models import Tenant
 from properties.models import Property
 
 
-class Contract(models.Model):
+class Contract(HashIdModel):
     """Contract representation"""
 
     created = models.DateTimeField(
@@ -55,8 +56,8 @@ class Contract(models.Model):
             # end date should be greater than start date
             if not self.end_date > self.start_date:
                 raise ValidationError(
-                    u'Invalid dates for contract. Ending date come after '
-                    'starting date.')
+                    u'Invalid dates for contract. Ending date should come '
+                    'after starting date.')
 
     def get_admin_url(self):
         info = (self._meta.app_label, self._meta.model_name)

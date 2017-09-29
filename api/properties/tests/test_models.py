@@ -1,38 +1,27 @@
 # -*- encoding: UTF-8 -*-
+import factory
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 
 from properties.models import Property
 from accounts.models import Landlord
+from properties.tests.factories import PropertyFactory
 
 
 class TestProperty(TestCase):
     def setUp(self):
-        self.landlord_one = Landlord.objects.create(
-            first_name='Marcius', last_name='Augustus',
-            email='maug@fake.mail', password='secretpwd')
+        self.prop_values_one = factory.build(
+            dict, FACTORY_CLASS=PropertyFactory)
+        self.prop_values_one['landlord'].save()
 
-        self.landlord_two = Landlord.objects.create(
-            first_name='Aurelia', last_name='Stewart',
-            email='aust@fake.mail', password='secretpwd')
-
-        self.prop_values_one = {
-            'street': 'Baker Street', 'number': '102', 'zip_code': 'NW16XE',
-            'city': 'London', 'description': 'Some fantanstic description',
-            'category': 'house', 'beds': '2', 'landlord': self.landlord_one
-        }
-
-        self.prop_values_two = {
-            'street': 'First Street', 'number': '897', 'zip_code': 'NW89XE',
-            'city': 'London', 'description': 'Another description',
-            'category': 'flat', 'beds': '1', 'landlord': self.landlord_two
-        }
+        self.prop_values_two = factory.build(
+            dict, FACTORY_CLASS=PropertyFactory)
+        self.prop_values_two['landlord'].save()
 
     def test_create_property_successfully(self):
         """Should successfully create a Property"""
         # asserts that are no properties in db
         self.assertEqual(Property.objects.count(), 0)
-
         # creates property
         prop = Property.objects.create(**self.prop_values_one)
 
@@ -41,6 +30,41 @@ class TestProperty(TestCase):
         # asserts created property contains the given values
         for name, value in self.prop_values_one.items():
             self.assertEqual(value, getattr(prop, name))
+
+    def test_create_property_with_valid_given_id(self):
+        """Should successfully create a Property when given id is valid"""
+        # asserts that are no properties in db
+        self.assertEqual(Property.objects.count(), 0)
+
+        # creates property
+        self.prop_values_one['id'] = 'a' * 16
+        prop = Property.objects.create(**self.prop_values_one)
+
+        # asserts there is a property in db
+        self.assertEqual(Property.objects.count(), 1)
+        # asserts created property contains the given values
+        for name, value in self.prop_values_one.items():
+            self.assertEqual(value, getattr(prop, name))
+
+    def test_create_property_with_invalid_given_id(self):
+        """
+        Should raise ValidationError when creating a Property when given
+        id is invalid
+        """
+        # asserts that are no properties in db
+        self.assertEqual(Property.objects.count(), 0)
+
+        self.prop_values_one['id'] = 'A' * 16
+        prop = Property(**self.prop_values_one)
+        expected = {
+            'id': [('ID must be a string containing 16 alphanumeric '
+                    'lowercase characters')]}
+        # creates property
+        with self.assertRaises(ValidationError) as raised:
+            prop.save()
+        self.assertEqual(raised.exception.message_dict, expected)
+        # asserts there is a property in db
+        self.assertEqual(Property.objects.count(), 0)
 
     def test_create_property_missing_street(self):
         """
@@ -225,7 +249,7 @@ class TestProperty(TestCase):
         """Should successfully filter property by one of its attributes"""
         Property.objects.create(**self.prop_values_one)
         prop = Property.objects.create(**self.prop_values_two)
-        filtered = Property.objects.filter(beds='1')
+        filtered = Property.objects.filter(beds=prop.beds)
         self.assertIn(prop, filtered)
         self.assertEqual(len(filtered), 1)
 
@@ -236,7 +260,7 @@ class TestProperty(TestCase):
         prop = Property.objects.create(**self.prop_values_two)
         self.assertEqual(Property.objects.count(), 2)
 
-        Property.objects.filter(beds='1').delete()
+        Property.objects.filter(beds=prop.beds).delete()
         properties = Property.objects.all()
         self.assertEqual(Property.objects.count(), 1)
         self.assertNotIn(prop, properties)

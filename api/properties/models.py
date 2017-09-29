@@ -3,10 +3,11 @@ from __future__ import unicode_literals
 
 from django.db import models
 
+from core.models import HashIdModel
 from accounts.models import Landlord
 
 
-class Property(models.Model):
+class Property(HashIdModel):
     """Property representation"""
 
     CATEGORY_CHOICES = (

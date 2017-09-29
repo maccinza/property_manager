@@ -1,7 +1,9 @@
 # -*- encoding: UTF-8 -*-
+import factory
 from django.test import TestCase
 
-from accounts.models import User, Landlord, Tenant
+from accounts.models import User
+from accounts.tests.factories import LandlordFactory, TenantFactory
 
 
 class TestBaseAdmin(TestCase):
@@ -21,37 +23,13 @@ class TestBaseAdmin(TestCase):
             is_staff=True,
             is_superuser=True)
 
-        self.landlord_one = {
-            'email': 'landlord@fake.mail',
-            'password1': 'secretpass',
-            'password2': 'secretpass',
-            'first_name': 'John',
-            'last_name': 'Doe'
-        }
+        self.landlord_one = factory.build(dict, FACTORY_CLASS=LandlordFactory)
 
-        self.landlord_two = {
-            'email': 'yalandlord@fake.mail',
-            'password1': 'secretpass',
-            'password2': 'secretpass',
-            'first_name': 'Jane',
-            'last_name': 'Donuts'
-        }
+        self.landlord_two = factory.build(dict, FACTORY_CLASS=LandlordFactory)
 
-        self.tenant_one = {
-            'email': 'tenant@fake.mail',
-            'password1': 'secretpass',
-            'password2': 'secretpass',
-            'first_name': 'Mary',
-            'last_name': 'Jane'
-        }
+        self.tenant_one = factory.build(dict, FACTORY_CLASS=TenantFactory)
 
-        self.tenant_two = {
-            'email': 'yatenant@fake.mail',
-            'password1': 'secretpass',
-            'password2': 'secretpass',
-            'first_name': 'Bruce',
-            'last_name': 'Banner'
-        }
+        self.tenant_two = factory.build(dict, FACTORY_CLASS=TenantFactory)
 
 
 class TestLoginAdminView(TestBaseAdmin):
@@ -167,70 +145,14 @@ class TestLandlordAdminViews(TestBaseAdmin):
         self.assertIn(self.landlord_two['email'], content)
 
         # searches for landlord
-        response = self.client.get('/admin/accounts/landlord/?q=John')
+        response = self.client.get('/admin/accounts/landlord/?q={}'.format(
+            self.landlord_one['first_name']))
         content = response.content
         self.assertIn('table', content)
         self.assertIn(self.landlord_one['first_name'], content)
         self.assertIn(self.landlord_one['last_name'], content)
         self.assertIn(self.landlord_one['email'], content)
         self.assertNotIn(self.landlord_two['first_name'], content)
-
-    def test_filter_landlord(self):
-        """Should successfully filter landlord in django admin site"""
-        self.client.login(email=self.credentials['email'],
-                          password=self.credentials['password'])
-
-        # creates two landlords
-        response = self.client.post(
-            '/admin/accounts/landlord/add/', self.landlord_one, follow=True)
-        self.assertEqual(response.status_code, 200)
-        response = self.client.post(
-            '/admin/accounts/landlord/add/', self.landlord_two, follow=True)
-        self.assertEqual(response.status_code, 200)
-
-        # checks both of them show up in listing
-        response = self.client.get('/admin/accounts/landlord/')
-        content = response.content
-        self.assertIn('table', content)
-        self.assertIn(self.landlord_one['first_name'], content)
-        self.assertIn(self.landlord_one['last_name'], content)
-        self.assertIn(self.landlord_one['email'], content)
-        self.assertIn(self.landlord_two['first_name'], content)
-        self.assertIn(self.landlord_two['last_name'], content)
-        self.assertIn(self.landlord_two['email'], content)
-
-        # filters landlord
-        response = self.client.get(
-            '/admin/accounts/landlord/?is_active__exact=0')
-        content = response.content
-        self.assertNotIn('table', content)
-        self.assertIn('0 landlords', content)
-
-    def test_login_landlord_fail(self):
-        """Should fail to login landlord user into the admin site"""
-        credentials = {
-            'email': 'jsparrow@fake.mail',
-            'password': 'secret!123'
-        }
-        first_name = 'Jack'
-        last_name = 'Sparrow'
-
-        self.user = Landlord.objects.create_user(
-            email=credentials['email'],
-            password=credentials['password'],
-            first_name=first_name,
-            last_name=last_name,
-            is_staff=True,
-            is_superuser=True)
-
-        response = self.client.post('/admin/login/',
-                                    {'username': credentials['email'],
-                                     'password': credentials['password']},
-                                    follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(
-            'Please enter the correct email and password for a staff account',
-            response.content)
 
 
 class TestTenantAdminViews(TestBaseAdmin):
@@ -294,67 +216,11 @@ class TestTenantAdminViews(TestBaseAdmin):
         self.assertIn(self.tenant_two['email'], content)
 
         # searches for tenant
-        response = self.client.get('/admin/accounts/tenant/?q=Mary')
+        response = self.client.get('/admin/accounts/tenant/?q={}'.format(
+            self.tenant_one['first_name']))
         content = response.content
         self.assertIn('table', content)
         self.assertIn(self.tenant_one['first_name'], content)
         self.assertIn(self.tenant_one['last_name'], content)
         self.assertIn(self.tenant_one['email'], content)
         self.assertNotIn(self.tenant_two['first_name'], content)
-
-    def test_filter_landlord(self):
-        """Should successfully filter tenant in django admin site"""
-        self.client.login(email=self.credentials['email'],
-                          password=self.credentials['password'])
-
-        # creates two tenants
-        response = self.client.post(
-            '/admin/accounts/tenant/add/', self.tenant_one, follow=True)
-        self.assertEqual(response.status_code, 200)
-        response = self.client.post(
-            '/admin/accounts/tenant/add/', self.tenant_two, follow=True)
-        self.assertEqual(response.status_code, 200)
-
-        # checks both of them show up in listing
-        response = self.client.get('/admin/accounts/tenant/')
-        content = response.content
-        self.assertIn('table', content)
-        self.assertIn(self.tenant_one['first_name'], content)
-        self.assertIn(self.tenant_one['last_name'], content)
-        self.assertIn(self.tenant_one['email'], content)
-        self.assertIn(self.tenant_two['first_name'], content)
-        self.assertIn(self.tenant_two['last_name'], content)
-        self.assertIn(self.tenant_two['email'], content)
-
-        # filters tenants
-        response = self.client.get(
-            '/admin/accounts/tenant/?is_active__exact=0')
-        content = response.content
-        self.assertNotIn('table', content)
-        self.assertIn('0 tenants', content)
-
-    def test_login_tenant_fail(self):
-        """Should fail to login tenant user into the admin site"""
-        credentials = {
-            'email': 'bkiddo@fake.mail',
-            'password': 'secret!123'
-        }
-        first_name = 'Beatrix'
-        last_name = 'Kiddo'
-
-        self.user = Tenant.objects.create_user(
-            email=credentials['email'],
-            password=credentials['password'],
-            first_name=first_name,
-            last_name=last_name,
-            is_staff=True,
-            is_superuser=True)
-
-        response = self.client.post('/admin/login/',
-                                    {'username': credentials['email'],
-                                     'password': credentials['password']},
-                                    follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(
-            'Please enter the correct email and password for a staff account',
-            response.content)

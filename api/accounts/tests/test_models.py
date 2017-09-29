@@ -1,13 +1,26 @@
 # -*- encoding: UTF-8 -*-
+import factory
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 from django.conf import settings
 
 from accounts.models import User, Landlord, Tenant
+from accounts.tests.factories import (UserFactory, LandlordFactory,
+                                      TenantFactory)
 
 
-class TestUserModel(TestCase):
+class BaseModelChecker(TestCase):
+    def check_attributes(self, attributes, obj):
+        """Helper method for checking if object attributes have expected values"""
+        for name, value in attributes.items():
+            if name == 'password':
+                self.assertTrue(obj.check_password(value))
+            else:
+                self.assertEqual(getattr(obj, name), value)
+
+
+class TestUserModel(BaseModelChecker):
 
     def test_create_staff_user(self):
         """
@@ -15,18 +28,12 @@ class TestUserModel(TestCase):
         are provided
         """
         self.assertEqual(User.objects.count(), 0)
-        user = User.objects.create_user(
-            first_name='John', last_name='Snow',
-            email='jsnow@test.com', password='abc123!',
-            is_staff=True)
+        params = factory.build(dict, FACTORY_CLASS=UserFactory)
+        params['is_superuser'] = False
+        params['is_staff'] = True
+        user = User.objects.create_user(**params)
         self.assertEqual(User.objects.count(), 1)
-        self.assertEqual(user.first_name, 'John')
-        self.assertEqual(user.last_name, 'Snow')
-        self.assertEqual(user.email, 'jsnow@test.com')
-        self.assertEqual(user.is_active, True)
-        self.assertEqual(user.is_superuser, False)
-        self.assertEqual(user.is_staff, True)
-        self.assertTrue(user.check_password('abc123!'))
+        self.check_attributes(params, user)
 
     def test_create_regular_user(self):
         """
@@ -34,17 +41,12 @@ class TestUserModel(TestCase):
         are provided
         """
         self.assertEqual(User.objects.count(), 0)
-        user = User.objects.create_user(
-            first_name='Luke', last_name='Skywalker',
-            email='lswalker@test.com', password='abc123!')
+        params = factory.build(dict, FACTORY_CLASS=UserFactory)
+        params['is_superuser'] = False
+        params['is_staff'] = False
+        user = User.objects.create_user(**params)
         self.assertEqual(User.objects.count(), 1)
-        self.assertEqual(user.first_name, 'Luke')
-        self.assertEqual(user.last_name, 'Skywalker')
-        self.assertEqual(user.email, 'lswalker@test.com')
-        self.assertEqual(user.is_active, True)
-        self.assertEqual(user.is_superuser, False)
-        self.assertEqual(user.is_staff, False)
-        self.assertTrue(user.check_password('abc123!'))
+        self.check_attributes(params, user)
 
     def test_create_superuser(self):
         """
@@ -52,18 +54,12 @@ class TestUserModel(TestCase):
         provided
         """
         self.assertEqual(User.objects.count(), 0)
-        user = User.objects.create_user(
-            first_name='Ayn', last_name='Rand',
-            email='arand@test.com', password='abc123!', is_staff=True,
-            is_superuser=True)
+        params = factory.build(dict, FACTORY_CLASS=UserFactory)
+        params['is_superuser'] = True
+        params['is_staff'] = True
+        user = User.objects.create_user(**params)
         self.assertEqual(User.objects.count(), 1)
-        self.assertEqual(user.first_name, 'Ayn')
-        self.assertEqual(user.last_name, 'Rand')
-        self.assertEqual(user.email, 'arand@test.com')
-        self.assertEqual(user.is_active, True)
-        self.assertEqual(user.is_superuser, True)
-        self.assertEqual(user.is_staff, True)
-        self.assertTrue(user.check_password('abc123!'))
+        self.check_attributes(params, user)
 
     def test_create_missing_fields(self):
         """
@@ -83,57 +79,31 @@ class TestUserModel(TestCase):
     def test_filter_user(self):
         """Should filter User by its attributes"""
         self.assertEqual(User.objects.count(), 0)
-        User.objects.create_user(
-            first_name='Ayn', last_name='Rand',
-            email='arand@test.com', password='abc123!', is_staff=True,
-            is_superuser=True)
-        User.objects.create_user(
-            first_name='Margaret', last_name='Thatcher',
-            email='mthatcher@test.com', password='abc123!', is_staff=True)
+        # creates two users
+        UserFactory.create(is_staff=True)
+        UserFactory.create(is_staff=True)
         self.assertEqual(User.objects.count(), 2)
-        filtered = User.objects.filter(first_name='Margaret')
+        filtered = User.objects.filter(first_name='Elon')
         self.assertEqual(len(filtered), 1)
-        self.assertEqual(filtered[0].last_name, 'Thatcher')
-
-    def test_manager_get_users_only(self):
-        """Should get only User instances through UserManager"""
-        self.assertEqual(User.objects.count(), 0)
-        User.objects.create_user(
-            first_name='Ayn', last_name='Rand',
-            email='arand@test.com', password='abc123!', is_staff=True,
-            is_superuser=True)
-        Landlord.objects.create_user(
-            first_name='Margaret', last_name='Thatcher',
-            email='mthatcher@test.com', password='abc123!', is_staff=True)
-        Tenant.objects.create_user(
-            first_name='Edson', last_name='Arantes',
-            email='earantes@test.com', password='abc123!', is_staff=True)
-        self.assertEqual(User.objects.count(), 1)
-        filtered = User.objects.all()
-        self.assertEqual(len(filtered), 1)
-        self.assertEqual(filtered[0].last_name, 'Rand')
+        self.assertEqual(filtered[0].last_name, 'Musk')
 
     def test_users_uniqueness(self):
         """
         Should fail to create user with the same first name, last name, and
         email
         """
-        # creates a user
-        User.objects.create_user(
-            first_name='Ayn', last_name='Rand',
-            email='arand@test.com', password='abc123!', is_staff=True,
-            is_superuser=True)
-        # should fail to create user with same name and e-mail
+        # creates two users
+        UserFactory.create()
+        UserFactory.create()
         expected = ('User with this Email, First name and Last name already '
                     'exists.')
+        # tries creating user with same email, first name and last name
         with self.assertRaises(ValidationError) as raised:
-            User.objects.create_user(
-                first_name='Ayn', last_name='Rand',
-                email='arand@test.com', password='abc123!', is_staff=True)
+            UserFactory.create()
         self.assertIn(expected, raised.exception.message_dict['__all__'])
 
 
-class TestLandlordModel(TestCase):
+class TestLandlordModel(BaseModelChecker):
 
     def test_create_landlord(self):
         """
@@ -141,17 +111,10 @@ class TestLandlordModel(TestCase):
         are provided
         """
         self.assertEqual(Landlord.objects.count(), 0)
-        landlord = Landlord.objects.create_user(
-            first_name='Lara', last_name='Croft',
-            email='lcroft@test.com', password='abc123!')
+        params = factory.build(dict, FACTORY_CLASS=LandlordFactory)
+        landlord = Landlord.objects.create(**params)
         self.assertEqual(Landlord.objects.count(), 1)
-        self.assertEqual(landlord.first_name, 'Lara')
-        self.assertEqual(landlord.last_name, 'Croft')
-        self.assertEqual(landlord.email, 'lcroft@test.com')
-        self.assertEqual(landlord.is_active, True)
-        self.assertEqual(landlord.is_superuser, False)
-        self.assertEqual(landlord.is_staff, False)
-        self.assertTrue(landlord.check_password('abc123!'))
+        self.check_attributes(params, landlord)
 
     def test_create_missing_fields(self):
         """
@@ -160,7 +123,6 @@ class TestLandlordModel(TestCase):
         """
         self.assertEqual(Landlord.objects.count(), 0)
         expected_errors = {
-            'password': ['This field cannot be blank.'],
             'email': ['This field cannot be blank.']
         }
         with self.assertRaises(ValidationError) as e:
@@ -168,67 +130,43 @@ class TestLandlordModel(TestCase):
         self.assertEqual(e.exception.message_dict, expected_errors)
         self.assertEqual(Landlord.objects.count(), 0)
 
-    def test_create_landlord_as_staff(self):
-        """
-        Should create new landlord instance as regular user even
-        when ordered to create as staff
-        """
-        self.assertEqual(Landlord.objects.count(), 0)
-        landlord = Landlord.objects.create_user(
-            first_name='Josh', last_name='Brolin',
-            email='jbrolin@test.com', password='abc123!', is_staff=True)
-        self.assertEqual(Landlord.objects.count(), 1)
-        self.assertEqual(landlord.first_name, 'Josh')
-        self.assertEqual(landlord.last_name, 'Brolin')
-        self.assertEqual(landlord.email, 'jbrolin@test.com')
-        self.assertEqual(landlord.is_active, True)
-        self.assertEqual(landlord.is_superuser, False)
-        self.assertEqual(landlord.is_staff, False)
-        self.assertTrue(landlord.check_password('abc123!'))
-
-    def test_create_landlord_as_superuser(self):
-        """
-        Should create new landlord instance as regular user even when ordered
-        to create as superuser
-        """
-        self.assertEqual(Landlord.objects.count(), 0)
-        landlord = Landlord.objects.create_user(
-            first_name='Lana', last_name='Del Rey',
-            email='ldrey@test.com', password='abc123!', is_staff=True,
-            is_superuser=True)
-        self.assertEqual(Landlord.objects.count(), 1)
-        self.assertEqual(landlord.first_name, 'Lana')
-        self.assertEqual(landlord.last_name, 'Del Rey')
-        self.assertEqual(landlord.email, 'ldrey@test.com')
-        self.assertEqual(landlord.is_active, True)
-        self.assertEqual(landlord.is_superuser, False)
-        self.assertEqual(landlord.is_staff, False)
-        self.assertTrue(landlord.check_password('abc123!'))
-
     def test_landlord_uniqueness(self):
         """Should fail to create landlord with the same email"""
-        email = 'arand@test.com'
-        # creates a user
-        Landlord.objects.create_user(
-            first_name='Ayn', last_name='Rand',
-            email=email, password='abc123!')
-        # should fail to create user with same name and e-mail
-        expected = "Duplicate entry '{}' for key 'email'".format(email)
-        db_backend = settings.DATABASES['default']['ENGINE']
-        db_backend = settings.DATABASES['default']['ENGINE']
-        if db_backend.endswith('sqlite3'):
-            expected = ('UNIQUE constraint failed: accounts_user.email, '
-                        'accounts_user.first_name, accounts_user.last_name')
-        else:
-            expected = "Duplicate entry '{}' for key 'email'".format(email)
-        with self.assertRaises(IntegrityError) as raised:
-            Landlord.objects.create_user(
-                first_name='Ayn', last_name='Rand',
-                email=email, password='abc123!')
-        self.assertIn(expected, raised.exception.args)
+        # creates two landlords
+        LandlordFactory.create()
+        LandlordFactory.create()
+        # should fail to create landlord with same name and e-mail
+        expected = {'email': ['Landlord with this Email already exists.']}
+        with self.assertRaises(ValidationError) as raised:
+            LandlordFactory.create()
+        self.assertEqual(expected, raised.exception.message_dict)
+
+    def test_create_with_given_valid_id(self):
+        """Should successfully create landlord when given id is valid"""
+        self.assertEqual(Landlord.objects.count(), 0)
+        hash_id = 'a' * 16
+        landlord = LandlordFactory.create(id=hash_id)
+        self.assertEqual(landlord.id, hash_id)
+        self.assertEqual(Landlord.objects.count(), 1)
+
+    def test_create_with_given_invalid_id(self):
+        """
+        Should raise ValidationError create landlord when given id
+        is invalid
+        """
+        self.assertEqual(Landlord.objects.count(), 0)
+        hash_id = 'aaabbbcccdddd#!-'
+        with self.assertRaises(ValidationError) as raised:
+            LandlordFactory.create(id=hash_id)
+        expected = {
+            'id': [('ID must be a string containing 16 alphanumeric '
+                    'lowercase characters')]
+        }
+        self.assertEqual(raised.exception.message_dict, expected)
+        self.assertEqual(Landlord.objects.count(), 0)
 
 
-class TestTenantModel(TestCase):
+class TestTenantModel(BaseModelChecker):
 
     def test_create_tenant(self):
         """
@@ -236,17 +174,10 @@ class TestTenantModel(TestCase):
         provided
         """
         self.assertEqual(Tenant.objects.count(), 0)
-        tenant = Tenant.objects.create_user(
-            first_name='Inspector', last_name='Gadget',
-            email='igadget@test.com', password='abc123!')
+        params = factory.build(dict, FACTORY_CLASS=TenantFactory)
+        tenant = TenantFactory.create(**params)
         self.assertEqual(Tenant.objects.count(), 1)
-        self.assertEqual(tenant.first_name, 'Inspector')
-        self.assertEqual(tenant.last_name, 'Gadget')
-        self.assertEqual(tenant.email, 'igadget@test.com')
-        self.assertEqual(tenant.is_active, True)
-        self.assertEqual(tenant.is_superuser, False)
-        self.assertEqual(tenant.is_staff, False)
-        self.assertTrue(tenant.check_password('abc123!'))
+        self.check_attributes(params, tenant)
 
     def test_create_missing_fields(self):
         """
@@ -254,67 +185,45 @@ class TestTenantModel(TestCase):
         """
         self.assertEqual(Tenant.objects.count(), 0)
         expected_errors = {
-            'password': ['This field cannot be blank.'],
             'email': ['This field cannot be blank.']
         }
+        tenant = Tenant()
         with self.assertRaises(ValidationError) as e:
-            Tenant.objects.create()
+            tenant.save()
         self.assertEqual(e.exception.message_dict, expected_errors)
         self.assertEqual(Tenant.objects.count(), 0)
 
-    def test_create_tenant_as_staff(self):
-        """
-        Should create new tenant instance as regular user even when ordered to
-        create as staff
-        """
-        self.assertEqual(Tenant.objects.count(), 0)
-        tenant = Tenant.objects.create_user(
-            first_name='Terry', last_name='Crews',
-            email='tcrews@test.com', password='abc123!', is_staff=True)
-        self.assertEqual(Tenant.objects.count(), 1)
-        self.assertEqual(tenant.first_name, 'Terry')
-        self.assertEqual(tenant.last_name, 'Crews')
-        self.assertEqual(tenant.email, 'tcrews@test.com')
-        self.assertEqual(tenant.is_active, True)
-        self.assertEqual(tenant.is_superuser, False)
-        self.assertEqual(tenant.is_staff, False)
-        self.assertTrue(tenant.check_password('abc123!'))
-
-    def test_create_tenant_as_superuser(self):
-        """
-        Should create new tenant instance as regular user even when ordered
-        to create as superuser
-        """
-        self.assertEqual(Tenant.objects.count(), 0)
-        tenant = Tenant.objects.create_user(
-            first_name='Simone', last_name='Simons',
-            email='simsimons@test.com', password='abc123!', is_staff=True,
-            is_superuser=True)
-        self.assertEqual(Tenant.objects.count(), 1)
-        self.assertEqual(tenant.first_name, 'Simone')
-        self.assertEqual(tenant.last_name, 'Simons')
-        self.assertEqual(tenant.email, 'simsimons@test.com')
-        self.assertEqual(tenant.is_active, True)
-        self.assertEqual(tenant.is_superuser, False)
-        self.assertEqual(tenant.is_staff, False)
-        self.assertTrue(tenant.check_password('abc123!'))
-
     def test_tenant_uniqueness(self):
         """Should fail to create tenant with the same email"""
-        email = 'arand@test.com'
-        # creates a user
-        Tenant.objects.create_user(
-            first_name='Ayn', last_name='Rand',
-            email=email, password='abc123!')
-        # should fail to create user with same name and e-mail
-        db_backend = settings.DATABASES['default']['ENGINE']
-        if db_backend.endswith('sqlite3'):
-            expected = ('UNIQUE constraint failed: accounts_user.email, '
-                        'accounts_user.first_name, accounts_user.last_name')
-        else:
-            expected = "Duplicate entry '{}' for key 'email'".format(email)
-        with self.assertRaises(IntegrityError) as raised:
-            Tenant.objects.create_user(
-                first_name='Ayn', last_name='Rand',
-                email=email, password='abc123!')
-        self.assertIn(expected, raised.exception.args)
+        # creates two tenants
+        TenantFactory.create()
+        TenantFactory.create()
+        # should fail to create tenant with same name and e-mail
+        expected = {'email': ['Tenant with this Email already exists.']}
+        with self.assertRaises(ValidationError) as raised:
+            TenantFactory.create()
+        self.assertEqual(expected, raised.exception.message_dict)
+
+    def test_create_with_given_valid_id(self):
+        """Should successfully create tenant when given id is valid"""
+        self.assertEqual(Tenant.objects.count(), 0)
+        hash_id = 'a' * 16
+        tenant = TenantFactory.create(id=hash_id)
+        self.assertEqual(Tenant.objects.count(), 1)
+        self.assertEqual(tenant.id, hash_id)
+
+    def test_create_with_given_invalid_id(self):
+        """
+        Should raise ValidationError create tenant when given id
+        is invalid
+        """
+        self.assertEqual(Tenant.objects.count(), 0)
+        hash_id = 'aaabbbcccdddd#!-'
+        with self.assertRaises(ValidationError) as raised:
+            TenantFactory.create(id=hash_id)
+        expected = {
+            'id': [('ID must be a string containing 16 alphanumeric '
+                    'lowercase characters')]
+        }
+        self.assertEqual(raised.exception.message_dict, expected)
+        self.assertEqual(Tenant.objects.count(), 0)

@@ -5,7 +5,8 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 
-from accounts.managers import UserManager, LandlordManager, TenantManager
+from core.models import PropertyBaseUser
+from accounts.managers import UserManager
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -50,11 +51,11 @@ class User(AbstractBaseUser, PermissionsMixin):
         super(User, self).save(*args, **kwargs)
 
 
-class Landlord(User):
+class Landlord(PropertyBaseUser):
     """Landlord user representation"""
-    objects = LandlordManager()
+    pass
 
 
-class Tenant(User):
+class Tenant(PropertyBaseUser):
     """Tenant user representation"""
-    objects = TenantManager()
+    pass
