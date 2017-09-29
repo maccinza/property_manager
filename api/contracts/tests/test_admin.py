@@ -1,9 +1,10 @@
 # -*- encoding: UTF-8 -*-
+import factory
 from django.test import TestCase
 
-from accounts.models import User, Landlord, Tenant
-from properties.models import Property
+from accounts.models import User, Landlord
 from contracts.models import Contract
+from contracts.tests.factories import ContractFactory
 
 
 class TestBaseAdmin(TestCase):
@@ -23,67 +24,17 @@ class TestBaseAdmin(TestCase):
             is_staff=True,
             is_superuser=True)
 
-        self.landlord_one = Landlord.objects.create(
-            email='landlord@fake.mail',
-            password='secretpass',
-            first_name='John',
-            last_name='Doe'
-        )
+        self.contract_one_data = factory.build(
+            dict, FACTORY_CLASS=ContractFactory)
+        self.contract_one_data['property'].landlord.save()
+        self.contract_one_data['property'].save()
+        self.contract_one_data['tenant'].save()
 
-        self.landlord_two = Landlord.objects.create(
-            email='yalandlord@fake.mail',
-            password='secretpass',
-            first_name='Jane',
-            last_name='Donuts'
-        )
-
-        self.tenant_one = Tenant.objects.create(
-            email='tenant@fake.mail',
-            password='secretpass',
-            first_name='Mary',
-            last_name='Jane')
-
-        self.tenant_two = Tenant.objects.create(
-            email='yatenant@fake.mail',
-            password='secretpass',
-            first_name='Bruce',
-            last_name='Banner')
-
-        self.property_one = Property.objects.create(
-            street='Baker Street',
-            number='102',
-            zip_code='NW16XE',
-            city='London',
-            description='Some fantanstic description',
-            category='house',
-            beds='1',
-            landlord=self.landlord_one)
-
-        self.property_two = Property.objects.create(
-            street='Second Street',
-            number='300',
-            zip_code='NW16ZA',
-            city='South Yorkshire',
-            description='Another description',
-            category='flat',
-            beds='2',
-            landlord=self.landlord_two)
-
-        self.contract_one_data = {
-            'start_date': '2017-01-01',
-            'end_date': '2017-07-01',
-            'property': self.property_one.id,
-            'tenant': self.tenant_one.id,
-            'rent': 600.00
-        }
-
-        self.contract_two_data = {
-            'start_date': '2017-05-20',
-            'end_date': '2018-05-20',
-            'property': self.property_two.id,
-            'tenant': self.tenant_two.id,
-            'rent': 895.50
-        }
+        self.contract_two_data = factory.build(
+            dict, FACTORY_CLASS=ContractFactory)
+        self.contract_two_data['property'].landlord.save()
+        self.contract_two_data['property'].save()
+        self.contract_two_data['tenant'].save()
 
         self.client.login(email=self.credentials['email'],
                           password=self.credentials['password'])
@@ -100,6 +51,8 @@ class TestBaseAdmin(TestCase):
 
         # creates the contract
         payload = self.contract_one_data
+        payload['tenant'] = payload['tenant'].id
+        payload['property'] = payload['property'].id
         response = self.client.post(
             '/admin/contracts/contract/add/', payload, follow=True)
         self.assertEqual(response.status_code, 200)
@@ -108,11 +61,7 @@ class TestBaseAdmin(TestCase):
         response = self.client.get('/admin/contracts/contract/')
         content = response.content
         self.assertIn('table', content)
-        self.assertIn('Jan. 1, 2017', content)
-        self.assertIn('July 1, 2017', content)
         self.assertIn(str(self.contract_one_data['rent']), content)
-        self.assertIn(self.tenant_one.get_full_name(), content)
-        self.assertIn(self.property_one.__unicode__(), content)
 
     def test_search_contract(self):
         """
@@ -129,10 +78,14 @@ class TestBaseAdmin(TestCase):
 
         # creates two contracts
         payload = self.contract_one_data
+        payload['tenant'] = payload['tenant'].id
+        payload['property'] = payload['property'].id
         response = self.client.post(
             '/admin/contracts/contract/add/', payload, follow=True)
         self.assertEqual(response.status_code, 200)
         payload = self.contract_two_data
+        payload['tenant'] = payload['tenant'].id
+        payload['property'] = payload['property'].id
         response = self.client.post(
             '/admin/contracts/contract/add/', payload, follow=True)
         self.assertEqual(response.status_code, 200)
@@ -141,54 +94,25 @@ class TestBaseAdmin(TestCase):
         response = self.client.get('/admin/contracts/contract/')
         content = response.content
         self.assertIn('table', content)
-        self.assertIn('Jan. 1, 2017', content)
-        self.assertIn('July 1, 2017', content)
+        self.assertIn('Sept. 25, 2017', content)
+        self.assertIn('Sept. 25, 2018', content)
         self.assertIn(str(self.contract_one_data['rent']), content)
-        self.assertIn(self.tenant_one.get_full_name(), content)
-        self.assertIn(self.property_one.__unicode__(), content)
-        self.assertIn('May 20, 2017', content)
-        self.assertIn('May 20, 2018', content)
+        self.assertIn('Oct. 22, 2017', content)
+        self.assertIn('Sept. 22, 2018', content)
         self.assertIn(str(self.contract_two_data['rent']), content)
-        self.assertIn(self.tenant_two.get_full_name(), content)
-        self.assertIn(self.property_two.__unicode__(), content)
 
         # searches for contract
-        response = self.client.get('/admin/contracts/contract/?q=London')
-        content = response.content
-        self.assertIn('table', content)
-        self.assertIn(self.tenant_one.get_full_name(), content)
-        self.assertIn(self.property_one.__unicode__(), content)
-        self.assertNotIn(self.tenant_two.get_full_name(), content)
-        self.assertNotIn(self.property_two.__unicode__(), content)
+        contract = Contract.objects.get(
+            property=self.contract_one_data['property'])
 
-    def test_filter_contract(self):
-        """Should successfully filter contract in django admin site"""
-        # creates two contracts
-        payload = self.contract_one_data
-        response = self.client.post(
-            '/admin/contracts/contract/add/', payload, follow=True)
-        self.assertEqual(response.status_code, 200)
-        payload = self.contract_two_data
-        response = self.client.post(
-            '/admin/contracts/contract/add/', payload, follow=True)
-        self.assertEqual(response.status_code, 200)
-
-        # checks both of them show up in listing
-        response = self.client.get('/admin/contracts/contract/')
-        content = response.content
-        self.assertIn('table', content)
-        self.assertIn(self.tenant_one.get_full_name(), content)
-        self.assertIn(self.property_one.__unicode__(), content)
-        self.assertIn(self.tenant_two.get_full_name(), content)
-        self.assertIn(self.property_two.__unicode__(), content)
-
-        # filters contract
+        contract_two = Contract.objects.get(
+            property=self.contract_two_data['property'])
         response = self.client.get(
-            '/admin/contracts/contract/?start_date__gte=2017-05-20'
-            '&start_date__lt=2018-05-20')
+            '/admin/contracts/contract/?q={}'.format(
+                contract.property.city))
         content = response.content
         self.assertIn('table', content)
-        self.assertNotIn(self.tenant_one.get_full_name(), content)
-        self.assertNotIn(self.property_one.__unicode__(), content)
-        self.assertIn(self.tenant_two.get_full_name(), content)
-        self.assertIn(self.property_two.__unicode__(), content)
+        self.assertIn(contract.tenant.get_full_name(), content)
+        self.assertIn(contract.property.__unicode__(), content)
+        self.assertNotIn(contract_two.tenant.get_full_name(), content)
+        self.assertNotIn(contract_two.property.__unicode__(), content)

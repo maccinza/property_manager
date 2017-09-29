@@ -7,3 +7,4 @@ ipython==4.1.2
 enum34==1.1.6
 testfixtures==5.2.0
 freezegun==0.3.9
+factory-boy==2.9.2

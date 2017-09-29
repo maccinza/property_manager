@@ -7,78 +7,14 @@ from django.core.management import call_command
 from testfixtures import LogCapture
 from freezegun import freeze_time
 
-from contracts.models import Contract
-from accounts.models import Landlord, Tenant
-from properties.models import Property
+from contracts.tests.factories import ContractFactory
 
 
 class TestContractsReportCommand(TestCase):
 
     def setUp(self):
-        self.landlord_one = Landlord.objects.create(
-            email='landone@fake.mail',
-            first_name='John',
-            last_name='Snow',
-            password='secret123')
-
-        self.landlord_two = Landlord.objects.create(
-            email='landtwo@fake.mail',
-            first_name='Daenerys',
-            last_name='Targaryen',
-            password='secret123')
-
-        self.property_one = Property.objects.create(
-            street='Baker Street',
-            number='100',
-            zip_code='NW16XE',
-            city='London',
-            description='Awesome description.',
-            category='house',
-            beds='2',
-            landlord=self.landlord_one)
-
-        self.property_two = Property.objects.create(
-            street='Elm Street',
-            number='200',
-            zip_code='NU16XO',
-            city='Nowhere Land',
-            description='Fantastic description.',
-            category='apartment',
-            beds='1',
-            landlord=self.landlord_two)
-
-        self.tenant_one = Tenant.objects.create(
-            email='tenantone@fake.mail',
-            first_name='Agatha',
-            last_name='Christie',
-            password='secret123')
-
-        self.tenant_two = Tenant.objects.create(
-            email='tenanttwo@fake.mail',
-            first_name='John',
-            last_name='Tolkien',
-            password='secret123')
-
-        self.contract_one = Contract.objects.create(
-            start_date='2016-09-20',
-            end_date='2017-09-20',
-            rent=1100.00,
-            property=self.property_one,
-            tenant=self.tenant_one)
-
-        self.contract_two = Contract.objects.create(
-            start_date='2016-09-23',
-            end_date='2017-09-23',
-            rent=950.00,
-            property=self.property_two,
-            tenant=self.tenant_two)
-
-        self.contract_three = Contract.objects.create(
-            start_date='2017-10-23',
-            end_date='2018-10-23',
-            rent=1000.00,
-            property=self.property_two,
-            tenant=self.tenant_one)
+        self.contract_one = ContractFactory()
+        self.contract_two = ContractFactory()
 
     def test_call_command_invalid_email(self):
         """
@@ -105,7 +41,7 @@ class TestContractsReportCommand(TestCase):
                       'to within one week')))
         output.check(expected)
 
-    @freeze_time('2017-09-19')
+    @freeze_time('2018-09-20')
     def test_call_command_send_report(self):
         """
         Should send email report containing the data of contracts matching
@@ -117,24 +53,27 @@ class TestContractsReportCommand(TestCase):
                       'contract/{}/change/\'> '
                       '{} </a>'.format(self.contract_one.id,
                                        self.contract_one.id), content)
-        self.assertIn('<td> 2017-09-20 </td>', content)
-        self.assertIn('<td> House at Baker Street, 100 - London </td>',
-                      content)
-        self.assertIn('<td> John Snow </td>', content)
-        self.assertIn('<td> Agatha Christie </td>', content)
-        self.assertIn('<td> 1100.00', content)
+        self.assertIn('<td> {} </td>'.format(
+            self.contract_one.end_date.strftime(
+            '%Y-%m-%d')), content)
+        self.assertIn('<td> {} </td>'.format(
+            self.contract_one.property.__unicode__()), content)
+        self.assertIn('<td> {} </td>'.format(
+            self.contract_one.property.landlord.get_full_name()), content)
+        self.assertIn('<td> {} </td>'.format(
+            self.contract_one.tenant.get_full_name()), content)
+        self.assertIn('<td> {}'.format(self.contract_one.rent), content)
         self.assertIn('<td> <a href=\'http://localhost:8000/admin/contracts'
                       '/contract/{}/change/\'> '
                       '{} </a></td>'.format(self.contract_two.id,
                                             self.contract_two.id), content)
-        self.assertIn('<td> 2017-09-23 </td>', content)
-        self.assertIn('<td> Apartment at Elm Street, 200 - '
-                      'Nowhere Land </td>', content)
-        self.assertIn('<td> Daenerys Targaryen </td>', content)
-        self.assertIn('<td> John Tolkien </td>', content)
-        self.assertIn('<td> 950.00', content)
-        self.assertNotIn('<td> <a href=\'http://localhost:8000/admin/contracts'
-                         '/contract/{}/change/\'> '
-                         '{} </a></td>'.format(self.contract_three.id,
-                                               self.contract_three.id),
-                         content)
+        self.assertIn('<td> {} </td>'.format(
+            self.contract_two.end_date.strftime(
+            '%Y-%m-%d')), content)
+        self.assertIn('<td> {} </td>'.format(
+            self.contract_two.property.__unicode__()), content)
+        self.assertIn('<td> {} </td>'.format(
+            self.contract_two.property.landlord.get_full_name()), content)
+        self.assertIn('<td> {} </td>'.format(
+            self.contract_two.tenant.get_full_name()), content)
+        self.assertIn('<td> {}'.format(self.contract_two.rent), content)

@@ -1,6 +1,7 @@
 # -*- encoding: UTF-8 -*-
 from __future__ import unicode_literals
 
+from django.db import models
 from django.contrib.auth.base_user import BaseUserManager
 
 
@@ -35,49 +36,10 @@ class UserManager(BaseUserManager):
 
         return self._create_user(email, password, **extra_fields)
 
-    def get_queryset(self):
-        return super(UserManager, self).get_queryset().filter(
-            tenant__isnull=True, landlord__isnull=True)
 
-
-class LandlordManager(BaseUserManager):
+class LandlordManager(models.Manager):
     use_in_migrations = True
 
-    def _create_user(self, email, password, **extra_fields):
-        """
-        Creates and saves a Landlord with the given username, email
-        and password.
-        """
-        if not email:
-            raise ValueError('An email is required for landlord creation')
-        email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
 
-    def create_user(self, email, password=None, **extra_fields):
-        extra_fields['is_staff'] = False
-        extra_fields['is_superuser'] = False
-        return self._create_user(email, password, **extra_fields)
-
-
-class TenantManager(BaseUserManager):
+class TenantManager(models.Manager):
     use_in_migrations = True
-
-    def _create_user(self, email, password, **extra_fields):
-        """
-        Creates and saves a Tenant with the given username, email and password.
-        """
-        if not email:
-            raise ValueError('An email is required for tenant creation')
-        email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
-
-    def create_user(self, email, password=None, **extra_fields):
-        extra_fields['is_staff'] = False
-        extra_fields['is_superuser'] = False
-        return self._create_user(email, password, **extra_fields)

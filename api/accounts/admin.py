@@ -36,28 +36,25 @@ class UserAdmin(UserAdmin):
     filter_horizontal = ('groups', 'user_permissions',)
 
 
-class PlatformUser(UserAdmin):
-    list_display = ('email', 'first_name', 'last_name', 'is_active')
-    list_filter = ('is_active',)
+class BasePropertyUserAdmin(admin.ModelAdmin):
+    list_display = ('email', 'first_name', 'last_name')
     fieldsets = (
-        (None, {'fields': ('email', 'password')}),
-        ('Personal info', {'fields': ('first_name', 'last_name')}),
-        ('Important dates', {'fields': ('last_login', 'date_joined')}),
+        ('Personal info', {'fields': ('email', 'first_name', 'last_name')}),
     )
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'password1', 'password2',
-                       'first_name', 'last_name'),
+            'fields': ('email', 'first_name', 'last_name'),
         }),
     )
+    search_fields = ('first_name', 'last_name', 'email')
 
 
 @admin.register(Landlord)
-class LandlordAdmin(PlatformUser):
+class LandlordAdmin(BasePropertyUserAdmin):
     pass
 
 
 @admin.register(Tenant)
-class TenantAdmin(PlatformUser):
+class TenantAdmin(BasePropertyUserAdmin):
     pass
