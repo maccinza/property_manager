@@ -61,8 +61,6 @@ class TestBaseAdmin(TestCase):
         response = self.client.get('/admin/contracts/contract/')
         content = response.content
         self.assertIn('table', content)
-        self.assertIn('Sept. 25, 2017', content)
-        self.assertIn('Sept. 25, 2018', content)
         self.assertIn(str(self.contract_one_data['rent']), content)
 
     def test_search_contract(self):
