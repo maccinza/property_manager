@@ -3,9 +3,10 @@ import factory
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
+from django.contrib.auth.models import User
 from django.conf import settings
 
-from accounts.models import User, Landlord, Tenant
+from accounts.models import Landlord, Tenant
 from accounts.tests.factories import (UserFactory, LandlordFactory,
                                       TenantFactory)
 
@@ -61,21 +62,6 @@ class TestUserModel(BaseModelChecker):
         self.assertEqual(User.objects.count(), 1)
         self.check_attributes(params, user)
 
-    def test_create_missing_fields(self):
-        """
-        Should raise ValidationError when missing required fields in
-        creation
-        """
-        self.assertEqual(User.objects.count(), 0)
-        expected_errors = {
-            'password': ['This field cannot be blank.'],
-            'email': ['This field cannot be blank.']
-        }
-        with self.assertRaises(ValidationError) as e:
-            User.objects.create()
-        self.assertEqual(e.exception.message_dict, expected_errors)
-        self.assertEqual(User.objects.count(), 0)
-
     def test_filter_user(self):
         """Should filter User by its attributes"""
         self.assertEqual(User.objects.count(), 0)
@@ -95,12 +81,18 @@ class TestUserModel(BaseModelChecker):
         # creates two users
         UserFactory.create()
         UserFactory.create()
-        expected = ('User with this Email, First name and Last name already '
-                    'exists.')
+
+        db = settings.DATABASES['default']['ENGINE']
         # tries creating user with same email, first name and last name
-        with self.assertRaises(ValidationError) as raised:
+        with self.assertRaises(IntegrityError) as raised:
             UserFactory.create()
-        self.assertIn(expected, raised.exception.message_dict['__all__'])
+        if db.endswith('sqlite3'):
+            expected = 'UNIQUE constraint failed: auth_user.username'
+            self.assertIn(expected, raised.exception.__unicode__())
+        else:
+            expected = ["Duplicate entry ", "for key \'username\'"]
+            for msg in expected:
+                self.assertIn(msg, raised.exception.__unicode__())
 
 
 class TestLandlordModel(BaseModelChecker):

@@ -1,8 +1,8 @@
 # -*- encoding: UTF-8 -*-
 import factory
 from django.test import TestCase
+from django.contrib.auth.models import User
 
-from accounts.models import User, Landlord
 from contracts.models import Contract
 from contracts.tests.factories import ContractFactory
 
@@ -10,15 +10,16 @@ from contracts.tests.factories import ContractFactory
 class TestBaseAdmin(TestCase):
     def setUp(self):
         self.credentials = {
-            'email': 'testuser@fake.mail',
+            'username': 'testuser',
             'password': 'secret!123'
         }
         first_name = 'Test'
         last_name = 'User'
 
         self.user = User.objects.create_user(
-            email=self.credentials['email'],
+            username=self.credentials['username'],
             password=self.credentials['password'],
+            email='test@email.com',
             first_name=first_name,
             last_name=last_name,
             is_staff=True,
@@ -36,7 +37,7 @@ class TestBaseAdmin(TestCase):
         self.contract_two_data['property'].save()
         self.contract_two_data['tenant'].save()
 
-        self.client.login(email=self.credentials['email'],
+        self.client.login(username=self.credentials['username'],
                           password=self.credentials['password'])
 
     def test_create_contract_admin_page(self):

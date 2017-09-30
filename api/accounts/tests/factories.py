@@ -2,8 +2,9 @@
 from __future__ import unicode_literals
 
 import factory
+from django.contrib.auth.models import User
 
-from accounts.models import User, Landlord, Tenant
+from accounts.models import Landlord, Tenant
 
 
 class UserFactory(factory.django.DjangoModelFactory):
@@ -12,6 +13,9 @@ class UserFactory(factory.django.DjangoModelFactory):
 
     first_name = factory.Iterator(["Elon", "Jeff"])
     last_name = factory.Iterator(["Musk", "Bezos"])
+    username = factory.LazyAttribute(
+        lambda obj: "{}_{}".format(
+            obj.first_name.lower(), obj.last_name.lower()))
     email = factory.LazyAttribute(
         lambda obj: "{}@email.com".format(obj.first_name.lower()))
     password = factory.LazyAttribute(
