@@ -1,6 +1,6 @@
 [
 {
-    "model": "accounts.user",
+    "model": "auth.user",
     "pk": 1,
     "fields": {
         "password": "pbkdf2_sha256$36000$SGODYVQljSnQ$ct4lL3AuTqUXO/iKZyaDguJ5DAF75lCM2WHo5ydCrHI=",
@@ -8,6 +8,7 @@
         "is_superuser": true,
         "first_name": "David",
         "last_name": "Farrington",
+        "username": "david_farrington",
         "email": "david.farrington@gamesys.co.uk",
         "is_staff": true,
         "is_active": true,

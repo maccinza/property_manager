@@ -1,22 +1,24 @@
 # -*- encoding: UTF-8 -*-
 import factory
 from django.test import TestCase
+from django.contrib.auth.models import User
 
-from accounts.models import User, Landlord
+from accounts.models import Landlord
 from properties.tests.factories import PropertyFactory
 
 
 class TestPropertyAdmin(TestCase):
     def setUp(self):
         self.credentials = {
-            'email': 'testuser@fake.mail',
+            'username': 'testuser',
             'password': 'secret!123'
         }
         first_name = 'Test'
         last_name = 'User'
 
         self.user = User.objects.create_user(
-            email=self.credentials['email'],
+            username=self.credentials['username'],
+            email='test@email.com',
             password=self.credentials['password'],
             first_name=first_name,
             last_name=last_name,
@@ -31,7 +33,7 @@ class TestPropertyAdmin(TestCase):
             dict, FACTORY_CLASS=PropertyFactory)
         self.property_two['landlord'].save()
 
-        self.client.login(email=self.credentials['email'],
+        self.client.login(username=self.credentials['username'],
                           password=self.credentials['password'])
 
     def test_create_property_admin_page(self):

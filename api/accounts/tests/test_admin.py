@@ -1,22 +1,22 @@
 # -*- encoding: UTF-8 -*-
 import factory
 from django.test import TestCase
+from django.contrib.auth.models import User
 
-from accounts.models import User
 from accounts.tests.factories import LandlordFactory, TenantFactory
 
 
 class TestBaseAdmin(TestCase):
     def setUp(self):
         self.credentials = {
-            'email': 'testuser@fake.mail',
+            'username': 'testuser@fake.mail',
             'password': 'secret!123'
         }
         first_name = 'Test'
         last_name = 'User'
 
         self.user = User.objects.create_user(
-            email=self.credentials['email'],
+            username=self.credentials['username'],
             password=self.credentials['password'],
             first_name=first_name,
             last_name=last_name,
@@ -37,7 +37,7 @@ class TestLoginAdminView(TestBaseAdmin):
     def test_user_login(self):
         """Should successfully login a staff user into django admin site"""
         response = self.client.post('/admin/login/',
-                                    {'username': self.credentials['email'],
+                                    {'username': self.credentials['username'],
                                      'password': self.credentials['password']},
                                     follow=False)
         self.assertEqual(response.status_code, 302)
@@ -51,8 +51,8 @@ class TestLoginAdminView(TestBaseAdmin):
                                     follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn(
-            'Please enter the correct email and password for a staff account',
-            response.content)
+            'Please enter the correct username and password for a staff '
+            'account', response.content)
 
     def test_user_login_wrong_credentials(self):
         """
@@ -60,20 +60,20 @@ class TestLoginAdminView(TestBaseAdmin):
         admin site
         """
         response = self.client.post('/admin/login/',
-                                    {'username': self.credentials['email'],
+                                    {'username': self.credentials['username'],
                                      'password': 'oopsIdontknow'},
                                     follow=False)
         self.assertEqual(response.status_code, 200)
         self.assertIn(
-            'Please enter the correct email and password for a staff account',
-            response.content)
+            'Please enter the correct username and password for a staff '
+            'account', response.content)
 
     def test_access_admin_page(self):
         """
         Should successfully access the admin page with a logged in staff
         user in django admin site
         """
-        self.client.login(email=self.credentials['email'],
+        self.client.login(username=self.credentials['username'],
                           password=self.credentials['password'])
 
         response = self.client.get('/admin/')
@@ -88,7 +88,7 @@ class TestLandlordAdminViews(TestBaseAdmin):
 
     def test_create_landlord_admin_page(self):
         """Should successfully create landlord in django admin site"""
-        self.client.login(email=self.credentials['email'],
+        self.client.login(username=self.credentials['username'],
                           password=self.credentials['password'])
 
         response = self.client.get('/admin/accounts/landlord/')
@@ -114,7 +114,7 @@ class TestLandlordAdminViews(TestBaseAdmin):
 
     def test_search_landlord(self):
         """Should successfully search and find landlord in django admin site"""
-        self.client.login(email=self.credentials['email'],
+        self.client.login(username=self.credentials['username'],
                           password=self.credentials['password'])
 
         response = self.client.get('/admin/accounts/landlord/')
@@ -159,7 +159,7 @@ class TestTenantAdminViews(TestBaseAdmin):
 
     def test_create_tenant_admin_page(self):
         """Should successfully create tenant in django admin site"""
-        self.client.login(email=self.credentials['email'],
+        self.client.login(username=self.credentials['username'],
                           password=self.credentials['password'])
 
         response = self.client.get('/admin/accounts/tenant/')
@@ -185,7 +185,7 @@ class TestTenantAdminViews(TestBaseAdmin):
 
     def test_search_tenant(self):
         """Should successfully search and find tenant in django admin site"""
-        self.client.login(email=self.credentials['email'],
+        self.client.login(username=self.credentials['username'],
                           password=self.credentials['password'])
 
         response = self.client.get('/admin/accounts/tenant/')

@@ -87,6 +87,6 @@ When running the application, it will be available at `http://localhost:8000/adm
 There is a pre-loaded user with superuser privileges whose credentials are:
 
 ```
-username: david.farrington@gamesys.co.uk
+username: david_farrington
 password: r007admpwd
 ```
