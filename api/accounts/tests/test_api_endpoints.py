@@ -20,8 +20,10 @@ class TestLandlordsEndpoint(JWTAuthenticationTestCase):
         self.common_headers = self.get_jwt_header(
             self.common_user.username, 'password123!')
 
-        self.landlord_one = LandlordFactory()
-        self.landlord_two = LandlordFactory()
+        self.landlord_one = LandlordFactory(
+            first_name='George', last_name='Foreman')
+        self.landlord_two = LandlordFactory(
+            first_name='Ronda', last_name='Rousey')
 
     def test_list_landlords_as_staff(self):
         """
@@ -540,8 +542,10 @@ class TestTenantsEndpoint(JWTAuthenticationTestCase):
         self.common_headers = self.get_jwt_header(
             self.common_user.username, 'password123!')
 
-        self.tenant_one = TenantFactory()
-        self.tenant_two = TenantFactory()
+        self.tenant_one = TenantFactory(
+            first_name='Bill', last_name='Murray')
+        self.tenant_two = TenantFactory(
+            first_name='Nicole', last_name='Kidman')
 
     def test_list_tenants_as_staff(self):
         """
