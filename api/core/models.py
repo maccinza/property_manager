@@ -31,8 +31,8 @@ class HashIdModel(models.Model):
 
 
 class PropertyBaseUser(HashIdModel):
-    first_name = models.CharField(max_length=30, blank=True)
-    last_name = models.CharField(max_length=30, blank=True)
+    first_name = models.CharField(max_length=30, blank=False, null=False)
+    last_name = models.CharField(max_length=30, blank=False, null=False)
     email = models.EmailField(unique=True)
 
     def save(self, *args, **kwargs):
