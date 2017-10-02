@@ -115,6 +115,8 @@ class TestLandlordModel(BaseModelChecker):
         """
         self.assertEqual(Landlord.objects.count(), 0)
         expected_errors = {
+            'first_name': [u'This field cannot be blank.'],
+            'last_name': [u'This field cannot be blank.'],
             'email': ['This field cannot be blank.']
         }
         with self.assertRaises(ValidationError) as e:
@@ -177,6 +179,8 @@ class TestTenantModel(BaseModelChecker):
         """
         self.assertEqual(Tenant.objects.count(), 0)
         expected_errors = {
+            'first_name': ['This field cannot be blank.'],
+            'last_name': ['This field cannot be blank.'],
             'email': ['This field cannot be blank.']
         }
         tenant = Tenant()
