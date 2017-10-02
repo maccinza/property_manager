@@ -5,9 +5,9 @@ from rest_framework.test import APITestCase
 
 class JWTAuthenticationTestCase(APITestCase):
 
-    def get_jwt_header(self, email, password):
+    def get_jwt_header(self, username, password):
         payload = {
-            "email": email,
+            "username": username,
             "password": password
         }
         response = self.client.post("/api/auth/login", data=payload)

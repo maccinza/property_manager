@@ -21,8 +21,22 @@ class LandlordSerializer(PropertyUserSerializer):
         fields = ('id', 'name', 'email')
 
 
+class LandlordModificationSerializer(PropertyUserSerializer):
+
+    class Meta:
+        model = Landlord
+        fields = ('id', 'first_name', 'last_name', 'email')
+
+
 class TenantSerializer(PropertyUserSerializer):
 
     class Meta:
         model = Tenant
         fields = ('id', 'name', 'email')
+
+
+class TenantModificationSerializer(PropertyUserSerializer):
+
+    class Meta:
+        model = Tenant
+        fields = ('id', 'first_name', 'last_name', 'email')

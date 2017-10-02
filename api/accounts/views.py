@@ -3,14 +3,21 @@ from __future__ import unicode_literals
 
 from rest_framework import viewsets, mixins
 from django.db import models
-from django.shortcuts import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
 
+from core.exceptions import Api401
 from accounts.models import Landlord, Tenant
-from accounts.serializers import LandlordSerializer, TenantSerializer
+from accounts.serializers import (LandlordSerializer,
+                                  LandlordModificationSerializer,
+                                  TenantSerializer,
+                                  TenantModificationSerializer)
 
 
 class LandlordView(mixins.RetrieveModelMixin,
                    mixins.ListModelMixin,
+                   mixins.CreateModelMixin,
+                   mixins.UpdateModelMixin,
+                   mixins.DestroyModelMixin,
                    viewsets.GenericViewSet):
     """
     This endpoint represents landlords:
@@ -38,17 +45,19 @@ class LandlordView(mixins.RetrieveModelMixin,
     disabled.
     """
 
+    permission_classes = (IsAuthenticated,)
     queryset = Landlord.objects.all().order_by('first_name', 'last_name')
-    serializer_class = LandlordSerializer
 
     def filter_queryset(self, queryset):
         queryset = super(LandlordView, self).filter_queryset(queryset)
+        if self.kwargs.get('pk'):
+            return queryset
 
         # filter by text search
         search = self.request.query_params.get('search')
         if search:
             splitted_search = search.split(' ')
-            if len(search) > 1:
+            if len(splitted_search) > 1:
                 first_name = splitted_search[0]
                 last_name = splitted_search[1:]
                 queryset = queryset.filter(
@@ -60,9 +69,23 @@ class LandlordView(mixins.RetrieveModelMixin,
                     models.Q(last_name__icontains=search))
         return queryset
 
+    def destroy(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            raise Api401('You do not have the permission to delete '
+                         'Landlords information')
+        return super(LandlordView, self).destroy(request, *args, **kwargs)
+
+    def get_serializer_class(self):
+        if self.action == 'list' or self.action == 'retrieve':
+            return LandlordSerializer
+        return LandlordModificationSerializer
+
 
 class TenantView(mixins.RetrieveModelMixin,
                  mixins.ListModelMixin,
+                 mixins.CreateModelMixin,
+                 mixins.UpdateModelMixin,
+                 mixins.DestroyModelMixin,
                  viewsets.GenericViewSet):
     """
     This endpoint represents tenants:
@@ -90,11 +113,14 @@ class TenantView(mixins.RetrieveModelMixin,
     disabled.
     """
 
+    permission_classes = (IsAuthenticated,)
     queryset = Tenant.objects.all().order_by('first_name', 'last_name')
-    serializer_class = TenantSerializer
 
     def filter_queryset(self, queryset):
         queryset = super(TenantView, self).filter_queryset(queryset)
+
+        if self.kwargs.get('pk'):
+            return queryset
 
         # filter by text search
         search = self.request.query_params.get('search')
@@ -111,3 +137,14 @@ class TenantView(mixins.RetrieveModelMixin,
                     models.Q(first_name__icontains=search) |
                     models.Q(last_name__icontains=search))
         return queryset
+
+    def destroy(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            raise Api401('You do not have the permission to delete '
+                         'Tenants information')
+        return super(TenantView, self).destroy(request, *args, **kwargs)
+
+    def get_serializer_class(self):
+        if self.action == 'list' or self.action == 'retrieve':
+            return TenantSerializer
+        return TenantModificationSerializer
