@@ -13,7 +13,9 @@ from accounts.tests.factories import (UserFactory, LandlordFactory,
 
 class BaseModelChecker(TestCase):
     def check_attributes(self, attributes, obj):
-        """Helper method for checking if object attributes have expected values"""
+        """
+        Helper method for checking if object attributes have expected values
+        """
         for name, value in attributes.items():
             if name == 'password':
                 self.assertTrue(obj.check_password(value))

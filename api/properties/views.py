@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from copy import deepcopy
-
 from django.core.exceptions import ValidationError
 from rest_framework import viewsets, mixins
 from rest_framework.response import Response
@@ -52,7 +50,7 @@ class PropertyView(mixins.RetrieveModelMixin,
             'category': 'house',
             'landlord': 'aryh149jfl0pol1r'
         }
-        ``` 
+        ```
 
     *  Update Property:
 

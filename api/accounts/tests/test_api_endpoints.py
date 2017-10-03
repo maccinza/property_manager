@@ -215,7 +215,7 @@ class TestLandlordsEndpoint(JWTAuthenticationTestCase):
         """
         params = {'page_size': 'none'}
         response = self.client.get(
-            '/api/landlords', params,**self.staff_headers)
+            '/api/landlords', params, **self.staff_headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         expected_data = [
             {
@@ -238,7 +238,7 @@ class TestLandlordsEndpoint(JWTAuthenticationTestCase):
         """
         params = {'page_size': '1'}
         response = self.client.get(
-            '/api/landlords', params,**self.staff_headers)
+            '/api/landlords', params, **self.staff_headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         expected_data = {
             'count': 2,
@@ -261,7 +261,7 @@ class TestLandlordsEndpoint(JWTAuthenticationTestCase):
         """
         params = {'page_size': '1', 'page': '2'}
         response = self.client.get(
-            '/api/landlords', params,**self.staff_headers)
+            '/api/landlords', params, **self.staff_headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         expected_data = {
             'count': 2,
@@ -468,7 +468,7 @@ class TestLandlordsEndpoint(JWTAuthenticationTestCase):
         """
         params = {'page_size': 'none'}
         response = self.client.get(
-            '/api/landlords', params,**self.common_headers)
+            '/api/landlords', params, **self.common_headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         expected_data = [
             {
@@ -990,7 +990,7 @@ class TestTenantsEndpoint(JWTAuthenticationTestCase):
         """
         params = {'page_size': 'none'}
         response = self.client.get(
-            '/api/tenants', params,**self.common_headers)
+            '/api/tenants', params, **self.common_headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         expected_data = [
             {

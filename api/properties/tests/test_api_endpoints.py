@@ -70,447 +70,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
             category='apartment',
             landlord=self.landlord_one)
 
-    def test_list_properties_as_staff(self):
-        """
-        Should successfully list all properties when requested by staff user
-        """
-
-        expected_data = {
-            'count': Property.objects.count(),
-            'next': None,
-            'previous': None,
-            'results': [
-                {
-                    'id': self.property_four.id,
-                    'city': self.property_four.city,
-                    'street': self.property_four.street,
-                    'number': self.property_four.number,
-                    'zip_code': self.property_four.zip_code,
-                    'category': self.property_four.category,
-                    'beds': self.property_four.beds,
-                    'description': self.property_four.description,
-                    'landlord': {
-                        'id': self.landlord_one.id,
-                        'name': self.landlord_one.get_full_name(),
-                        'email': self.landlord_one.email
-                    }
-                },
-                {
-                    'id': self.property_one.id,
-                    'city': self.property_one.city,
-                    'street': self.property_one.street,
-                    'number': self.property_one.number,
-                    'zip_code': self.property_one.zip_code,
-                    'category': self.property_one.category,
-                    'beds': self.property_one.beds,
-                    'description': self.property_one.description,
-                    'landlord': {
-                        'id': self.landlord_one.id,
-                        'name': self.landlord_one.get_full_name(),
-                        'email': self.landlord_one.email
-                    }
-                },
-                {
-                    'id': self.property_three.id,
-                    'city': self.property_three.city,
-                    'street': self.property_three.street,
-                    'number': self.property_three.number,
-                    'zip_code': self.property_three.zip_code,
-                    'category': self.property_three.category,
-                    'beds': self.property_three.beds,
-                    'description': self.property_three.description,
-                    'landlord': {
-                        'id': self.landlord_three.id,
-                        'name': self.landlord_three.get_full_name(),
-                        'email': self.landlord_three.email
-                    }
-                },
-                {
-                    'id': self.property_two.id,
-                    'city': self.property_two.city,
-                    'street': self.property_two.street,
-                    'number': self.property_two.number,
-                    'zip_code': self.property_two.zip_code,
-                    'category': self.property_two.category,
-                    'beds': self.property_two.beds,
-                    'description': self.property_two.description,
-                    'landlord': {
-                        'id': self.landlord_two.id,
-                        'name': self.landlord_two.get_full_name(),
-                        'email': self.landlord_two.email
-                    }
-                }
-            ]
-        }
-        response = self.client.get('/api/properties', **self.staff_headers)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, expected_data)
-
-    def test_get_property_as_staff(self):
-        """
-        Should successfully get property info when requested by staff user and
-        provided id is valid
-        """
-
-        expected_data = {
-            'id': self.property_three.id,
-            'city': self.property_three.city,
-            'street': self.property_three.street,
-            'number': self.property_three.number,
-            'zip_code': self.property_three.zip_code,
-            'category': self.property_three.category,
-            'beds': self.property_three.beds,
-            'description': self.property_three.description,
-            'landlord': {
-                'id': self.landlord_three.id,
-                'name': self.landlord_three.get_full_name(),
-                'email': self.landlord_three.email
-            }
-        }
-
-        response = self.client.get(
-            '/api/properties/{}'.format(self.property_three.id),
-            **self.staff_headers)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, expected_data)
-
-    def test_get_inexistent_property_as_staff(self):
-        """
-        Should get 404 when trying to get inexistent property when
-        requested by staff user
-        """
-        response = self.client.get(
-            '/api/properties/{}'.format('a' * 16),
-            **self.staff_headers)
-        expected = {'detail': 'Not found.'}
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self.assertEqual(response.data, expected)
-
-    def test_filter_property_by_city(self):
-        """
-        Should successfully filter property by given city when
-        requested by staff user
-        """
-        expected_data = {
-            'count': 2,
-            'next': None,
-            'previous': None,
-            'results': [
-                {
-                    'id': self.property_one.id,
-                    'city': self.property_one.city,
-                    'street': self.property_one.street,
-                    'number': self.property_one.number,
-                    'zip_code': self.property_one.zip_code,
-                    'category': self.property_one.category,
-                    'beds': self.property_one.beds,
-                    'description': self.property_one.description,
-                    'landlord': {
-                        'id': self.landlord_one.id,
-                        'name': self.landlord_one.get_full_name(),
-                        'email': self.landlord_one.email
-                    }
-                },
-                {
-                    'id': self.property_three.id,
-                    'city': self.property_three.city,
-                    'street': self.property_three.street,
-                    'number': self.property_three.number,
-                    'zip_code': self.property_three.zip_code,
-                    'category': self.property_three.category,
-                    'beds': self.property_three.beds,
-                    'description': self.property_three.description,
-                    'landlord': {
-                        'id': self.landlord_three.id,
-                        'name': self.landlord_three.get_full_name(),
-                        'email': self.landlord_three.email
-                    }
-                }
-            ]
-        }
-        params = {'city': 'London'}
-        response = self.client.get(
-            '/api/properties', params, **self.staff_headers)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, expected_data)
-
-    def test_filter_property_by_landlord(self):
-        """
-        Should successfully filter property by given landlord id when
-        requested by staff user
-        """
-        expected_data = {
-            'count': 2,
-            'next': None,
-            'previous': None,
-            'results': [
-                {
-                    'id': self.property_four.id,
-                    'city': self.property_four.city,
-                    'street': self.property_four.street,
-                    'number': self.property_four.number,
-                    'zip_code': self.property_four.zip_code,
-                    'category': self.property_four.category,
-                    'beds': self.property_four.beds,
-                    'description': self.property_four.description,
-                    'landlord': {
-                        'id': self.landlord_one.id,
-                        'name': self.landlord_one.get_full_name(),
-                        'email': self.landlord_one.email
-                    }
-                },
-                {
-                    'id': self.property_one.id,
-                    'city': self.property_one.city,
-                    'street': self.property_one.street,
-                    'number': self.property_one.number,
-                    'zip_code': self.property_one.zip_code,
-                    'category': self.property_one.category,
-                    'beds': self.property_one.beds,
-                    'description': self.property_one.description,
-                    'landlord': {
-                        'id': self.landlord_one.id,
-                        'name': self.landlord_one.get_full_name(),
-                        'email': self.landlord_one.email
-                    }
-                }
-            ]
-        }
-        params = {'landlord_id': self.landlord_one.id}
-        response = self.client.get(
-            '/api/properties', params, **self.staff_headers)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, expected_data)
-
-    def test_filter_property_by_zipcode(self):
-        """
-        Should successfully filter property by given zipcode when
-        requested by staff user
-        """
-        expected_data = {
-            'count': 1,
-            'next': None,
-            'previous': None,
-            'results': [
-                {
-                    'id': self.property_four.id,
-                    'city': self.property_four.city,
-                    'street': self.property_four.street,
-                    'number': self.property_four.number,
-                    'zip_code': self.property_four.zip_code,
-                    'category': self.property_four.category,
-                    'beds': self.property_four.beds,
-                    'description': self.property_four.description,
-                    'landlord': {
-                        'id': self.landlord_one.id,
-                        'name': self.landlord_one.get_full_name(),
-                        'email': self.landlord_one.email
-                    }
-                }
-            ]
-        }
-        params = {'zipcode': self.property_four.zip_code}
-        response = self.client.get(
-            '/api/properties', params, **self.staff_headers)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, expected_data)
-
-    def test_filter_property_by_street(self):
-        """
-        Should successfully filter property by given street when
-        requested by staff user
-        """
-        expected_data = {
-            'count': 1,
-            'next': None,
-            'previous': None,
-            'results': [
-                {
-                    'id': self.property_three.id,
-                    'city': self.property_three.city,
-                    'street': self.property_three.street,
-                    'number': self.property_three.number,
-                    'zip_code': self.property_three.zip_code,
-                    'category': self.property_three.category,
-                    'beds': self.property_three.beds,
-                    'description': self.property_three.description,
-                    'landlord': {
-                        'id': self.landlord_three.id,
-                        'name': self.landlord_three.get_full_name(),
-                        'email': self.landlord_three.email
-                    }
-                }
-            ]
-        }
-        params = {'street': self.property_three.street}
-        response = self.client.get(
-            '/api/properties', params, **self.staff_headers)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, expected_data)
-
-    def test_filter_property_by_category(self):
-        """
-        Should successfully filter property by given category when
-        requested by staff user
-        """
-        expected_data = {
-            'count': 2,
-            'next': None,
-            'previous': None,
-            'results': [
-                {
-                    'id': self.property_one.id,
-                    'city': self.property_one.city,
-                    'street': self.property_one.street,
-                    'number': self.property_one.number,
-                    'zip_code': self.property_one.zip_code,
-                    'category': self.property_one.category,
-                    'beds': self.property_one.beds,
-                    'description': self.property_one.description,
-                    'landlord': {
-                        'id': self.landlord_one.id,
-                        'name': self.landlord_one.get_full_name(),
-                        'email': self.landlord_one.email
-                    }
-                },
-                {
-                    'id': self.property_three.id,
-                    'city': self.property_three.city,
-                    'street': self.property_three.street,
-                    'number': self.property_three.number,
-                    'zip_code': self.property_three.zip_code,
-                    'category': self.property_three.category,
-                    'beds': self.property_three.beds,
-                    'description': self.property_three.description,
-                    'landlord': {
-                        'id': self.landlord_three.id,
-                        'name': self.landlord_three.get_full_name(),
-                        'email': self.landlord_three.email
-                    }
-                }
-            ]
-        }
-        params = {'category': 'house'}
-        response = self.client.get(
-            '/api/properties', params, **self.staff_headers)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, expected_data)
-
-    def test_filter_property_beds_as_staff(self):
-        """
-        Should successfully filter property by number of beds when parameter
-        is given and requested by staff user
-        """
-        expected_data = {
-            'count': 2,
-            'next': None,
-            'previous': None,
-            'results': [
-                {
-                    'id': self.property_four.id,
-                    'city': self.property_four.city,
-                    'street': self.property_four.street,
-                    'number': self.property_four.number,
-                    'zip_code': self.property_four.zip_code,
-                    'category': self.property_four.category,
-                    'beds': self.property_four.beds,
-                    'description': self.property_four.description,
-                    'landlord': {
-                        'id': self.landlord_one.id,
-                        'name': self.landlord_one.get_full_name(),
-                        'email': self.landlord_one.email
-                    }
-                },
-                {
-                    'id': self.property_two.id,
-                    'city': self.property_two.city,
-                    'street': self.property_two.street,
-                    'number': self.property_two.number,
-                    'zip_code': self.property_two.zip_code,
-                    'category': self.property_two.category,
-                    'beds': self.property_two.beds,
-                    'description': self.property_two.description,
-                    'landlord': {
-                        'id': self.landlord_two.id,
-                        'name': self.landlord_two.get_full_name(),
-                        'email': self.landlord_two.email
-                    }
-                }
-            ]
-        }
-        params = {'beds': '1'}
-        response = self.client.get(
-            '/api/properties', params, **self.staff_headers)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, expected_data)
-
-    def test_filter_property_invalid_category(self):
-        """
-        Should return 400 when given category is invalid and
-        requested by staff user
-        """
-        expected_data = {'detail': 'Invalid category "invalid" for property'}
-        params = {'category': 'invalid'}
-        response = self.client.get(
-            '/api/properties', params, **self.staff_headers)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data, expected_data)
-
-    def test_filter_property_invalid_beds(self):
-        """
-        Should return 400 when given number of beds is invalid and
-        requested by staff user
-        """
-        expected_data = {'detail': 'Invalid number of beds "10" for property'}
-        params = {'beds': '10'}
-        response = self.client.get(
-            '/api/properties', params, **self.staff_headers)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data, expected_data)
-
-    def test_filter_property_multiple_filter(self):
-        """
-        Should successfully filter property by given multiple filters when
-        requested by staff user
-        """
-        expected_data = {
-            'count': 1,
-            'next': None,
-            'previous': None,
-            'results': [
-                {
-                    'id': self.property_four.id,
-                    'city': self.property_four.city,
-                    'street': self.property_four.street,
-                    'number': self.property_four.number,
-                    'zip_code': self.property_four.zip_code,
-                    'category': self.property_four.category,
-                    'beds': self.property_four.beds,
-                    'description': self.property_four.description,
-                    'landlord': {
-                        'id': self.landlord_one.id,
-                        'name': self.landlord_one.get_full_name(),
-                        'email': self.landlord_one.email
-                    }
-                }
-            ]
-        }
-        params = {
-            'landlord_id': self.landlord_one.id,
-            'beds': '1'
-        }
-        response = self.client.get(
-            '/api/properties', params, **self.staff_headers)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, expected_data)
-
-    def test_list_properties_disabled_pagination(self):
-        """
-        Should successfully list all properties with no pagination when
-        parameter is given and requested by staff user
-        """
-
-        expected_data = [
+        self.all_results = [
             {
                 'id': self.property_four.id,
                 'city': self.property_four.city,
@@ -572,6 +132,219 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
                 }
             }
         ]
+
+    def test_list_properties_as_staff(self):
+        """
+        Should successfully list all properties when requested by staff user
+        """
+
+        expected_data = {
+            'count': Property.objects.count(),
+            'next': None,
+            'previous': None,
+            'results': self.all_results
+        }
+        response = self.client.get('/api/properties', **self.staff_headers)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, expected_data)
+
+    def test_get_property_as_staff(self):
+        """
+        Should successfully get property info when requested by staff user and
+        provided id is valid
+        """
+
+        expected_data = self.all_results[2]
+
+        response = self.client.get(
+            '/api/properties/{}'.format(self.property_three.id),
+            **self.staff_headers)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, expected_data)
+
+    def test_get_inexistent_property_as_staff(self):
+        """
+        Should get 404 when trying to get inexistent property when
+        requested by staff user
+        """
+        response = self.client.get(
+            '/api/properties/{}'.format('a' * 16),
+            **self.staff_headers)
+        expected = {'detail': 'Not found.'}
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data, expected)
+
+    def test_filter_property_by_city_as_staff(self):
+        """
+        Should successfully filter property by given city when
+        requested by staff user
+        """
+        expected_data = {
+            'count': 2,
+            'next': None,
+            'previous': None,
+            'results': [
+                self.all_results[1],
+                self.all_results[2]
+            ]
+        }
+        params = {'city': 'London'}
+        response = self.client.get(
+            '/api/properties', params, **self.staff_headers)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, expected_data)
+
+    def test_filter_property_by_landlord_as_staff(self):
+        """
+        Should successfully filter property by given landlord id when
+        requested by staff user
+        """
+        expected_data = {
+            'count': 2,
+            'next': None,
+            'previous': None,
+            'results': [
+                self.all_results[0],
+                self.all_results[1]
+            ]
+        }
+        params = {'landlord_id': self.landlord_one.id}
+        response = self.client.get(
+            '/api/properties', params, **self.staff_headers)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, expected_data)
+
+    def test_filter_property_by_zipcode_as_staff(self):
+        """
+        Should successfully filter property by given zipcode when
+        requested by staff user
+        """
+        expected_data = {
+            'count': 1,
+            'next': None,
+            'previous': None,
+            'results': [
+                self.all_results[0]
+            ]
+        }
+        params = {'zipcode': self.property_four.zip_code}
+        response = self.client.get(
+            '/api/properties', params, **self.staff_headers)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, expected_data)
+
+    def test_filter_property_by_street_as_staff(self):
+        """
+        Should successfully filter property by given street when
+        requested by staff user
+        """
+        expected_data = {
+            'count': 1,
+            'next': None,
+            'previous': None,
+            'results': [
+                self.all_results[2]
+            ]
+        }
+        params = {'street': self.property_three.street}
+        response = self.client.get(
+            '/api/properties', params, **self.staff_headers)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, expected_data)
+
+    def test_filter_property_by_category_as_staff(self):
+        """
+        Should successfully filter property by given category when
+        requested by staff user
+        """
+        expected_data = {
+            'count': 2,
+            'next': None,
+            'previous': None,
+            'results': [
+                self.all_results[1],
+                self.all_results[2]
+            ]
+        }
+        params = {'category': 'house'}
+        response = self.client.get(
+            '/api/properties', params, **self.staff_headers)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, expected_data)
+
+    def test_filter_property_beds_as_staff(self):
+        """
+        Should successfully filter property by number of beds when parameter
+        is given and requested by staff user
+        """
+        expected_data = {
+            'count': 2,
+            'next': None,
+            'previous': None,
+            'results': [
+                self.all_results[0],
+                self.all_results[3]
+            ]
+        }
+        params = {'beds': '1'}
+        response = self.client.get(
+            '/api/properties', params, **self.staff_headers)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, expected_data)
+
+    def test_filter_property_invalid_category_as_staff(self):
+        """
+        Should return 400 when given category is invalid and
+        requested by staff user
+        """
+        expected_data = {'detail': 'Invalid category "invalid" for property'}
+        params = {'category': 'invalid'}
+        response = self.client.get(
+            '/api/properties', params, **self.staff_headers)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data, expected_data)
+
+    def test_filter_property_invalid_beds_as_staff(self):
+        """
+        Should return 400 when given number of beds is invalid and
+        requested by staff user
+        """
+        expected_data = {'detail': 'Invalid number of beds "10" for property'}
+        params = {'beds': '10'}
+        response = self.client.get(
+            '/api/properties', params, **self.staff_headers)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data, expected_data)
+
+    def test_filter_property_multiple_filter_as_staff(self):
+        """
+        Should successfully filter property by given multiple filters when
+        requested by staff user
+        """
+        expected_data = {
+            'count': 1,
+            'next': None,
+            'previous': None,
+            'results': [
+                self.all_results[0]
+            ]
+        }
+        params = {
+            'landlord_id': self.landlord_one.id,
+            'beds': '1'
+        }
+        response = self.client.get(
+            '/api/properties', params, **self.staff_headers)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, expected_data)
+
+    def test_list_properties_disabled_pagination_as_staff(self):
+        """
+        Should successfully list all properties with no pagination when
+        parameter is given and requested by staff user
+        """
+
+        expected_data = self.all_results
         params = {'page_size': 'none'}
         response = self.client.get(
             '/api/properties', params, **self.staff_headers)
@@ -589,21 +362,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
             'next': 'http://testserver/api/properties?page=2&page_size=1',
             'previous': None,
             'results': [
-                {
-                    'id': self.property_four.id,
-                    'city': self.property_four.city,
-                    'street': self.property_four.street,
-                    'number': self.property_four.number,
-                    'zip_code': self.property_four.zip_code,
-                    'category': self.property_four.category,
-                    'beds': self.property_four.beds,
-                    'description': self.property_four.description,
-                    'landlord': {
-                        'id': self.landlord_one.id,
-                        'name': self.landlord_one.get_full_name(),
-                        'email': self.landlord_one.email
-                    }
-                }
+                self.all_results[0]
             ]
         }
         params = {'page_size': '1'}
@@ -622,21 +381,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
             'next': 'http://testserver/api/properties?page=4&page_size=1',
             'previous': 'http://testserver/api/properties?page=2&page_size=1',
             'results': [
-                {
-                    'id': self.property_three.id,
-                    'city': self.property_three.city,
-                    'street': self.property_three.street,
-                    'number': self.property_three.number,
-                    'zip_code': self.property_three.zip_code,
-                    'category': self.property_three.category,
-                    'beds': self.property_three.beds,
-                    'description': self.property_three.description,
-                    'landlord': {
-                        'id': self.landlord_three.id,
-                        'name': self.landlord_three.get_full_name(),
-                        'email': self.landlord_three.email
-                    }
-                }
+                self.all_results[2]
             ]
         }
         params = {'page_size': '1', 'page': 3}
@@ -827,68 +572,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
             'count': Property.objects.count(),
             'next': None,
             'previous': None,
-            'results': [
-                {
-                    'id': self.property_four.id,
-                    'city': self.property_four.city,
-                    'street': self.property_four.street,
-                    'number': self.property_four.number,
-                    'zip_code': self.property_four.zip_code,
-                    'category': self.property_four.category,
-                    'beds': self.property_four.beds,
-                    'description': self.property_four.description,
-                    'landlord': {
-                        'id': self.landlord_one.id,
-                        'name': self.landlord_one.get_full_name(),
-                        'email': self.landlord_one.email
-                    }
-                },
-                {
-                    'id': self.property_one.id,
-                    'city': self.property_one.city,
-                    'street': self.property_one.street,
-                    'number': self.property_one.number,
-                    'zip_code': self.property_one.zip_code,
-                    'category': self.property_one.category,
-                    'beds': self.property_one.beds,
-                    'description': self.property_one.description,
-                    'landlord': {
-                        'id': self.landlord_one.id,
-                        'name': self.landlord_one.get_full_name(),
-                        'email': self.landlord_one.email
-                    }
-                },
-                {
-                    'id': self.property_three.id,
-                    'city': self.property_three.city,
-                    'street': self.property_three.street,
-                    'number': self.property_three.number,
-                    'zip_code': self.property_three.zip_code,
-                    'category': self.property_three.category,
-                    'beds': self.property_three.beds,
-                    'description': self.property_three.description,
-                    'landlord': {
-                        'id': self.landlord_three.id,
-                        'name': self.landlord_three.get_full_name(),
-                        'email': self.landlord_three.email
-                    }
-                },
-                {
-                    'id': self.property_two.id,
-                    'city': self.property_two.city,
-                    'street': self.property_two.street,
-                    'number': self.property_two.number,
-                    'zip_code': self.property_two.zip_code,
-                    'category': self.property_two.category,
-                    'beds': self.property_two.beds,
-                    'description': self.property_two.description,
-                    'landlord': {
-                        'id': self.landlord_two.id,
-                        'name': self.landlord_two.get_full_name(),
-                        'email': self.landlord_two.email
-                    }
-                }
-            ]
+            'results': self.all_results
         }
         response = self.client.get('/api/properties', **self.common_headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -900,21 +584,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
         provided id is valid
         """
 
-        expected_data = {
-            'id': self.property_three.id,
-            'city': self.property_three.city,
-            'street': self.property_three.street,
-            'number': self.property_three.number,
-            'zip_code': self.property_three.zip_code,
-            'category': self.property_three.category,
-            'beds': self.property_three.beds,
-            'description': self.property_three.description,
-            'landlord': {
-                'id': self.landlord_three.id,
-                'name': self.landlord_three.get_full_name(),
-                'email': self.landlord_three.email
-            }
-        }
+        expected_data = self.all_results[2]
 
         response = self.client.get(
             '/api/properties/{}'.format(self.property_three.id),
@@ -934,7 +604,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(response.data, expected)
 
-    def test_filter_property_by_city(self):
+    def test_filter_property_by_city_as_common(self):
         """
         Should successfully filter property by given city when
         requested by common user
@@ -944,36 +614,8 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
             'next': None,
             'previous': None,
             'results': [
-                {
-                    'id': self.property_one.id,
-                    'city': self.property_one.city,
-                    'street': self.property_one.street,
-                    'number': self.property_one.number,
-                    'zip_code': self.property_one.zip_code,
-                    'category': self.property_one.category,
-                    'beds': self.property_one.beds,
-                    'description': self.property_one.description,
-                    'landlord': {
-                        'id': self.landlord_one.id,
-                        'name': self.landlord_one.get_full_name(),
-                        'email': self.landlord_one.email
-                    }
-                },
-                {
-                    'id': self.property_three.id,
-                    'city': self.property_three.city,
-                    'street': self.property_three.street,
-                    'number': self.property_three.number,
-                    'zip_code': self.property_three.zip_code,
-                    'category': self.property_three.category,
-                    'beds': self.property_three.beds,
-                    'description': self.property_three.description,
-                    'landlord': {
-                        'id': self.landlord_three.id,
-                        'name': self.landlord_three.get_full_name(),
-                        'email': self.landlord_three.email
-                    }
-                }
+                self.all_results[1],
+                self.all_results[2]
             ]
         }
         params = {'city': 'London'}
@@ -982,7 +624,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, expected_data)
 
-    def test_filter_property_by_landlord(self):
+    def test_filter_property_by_landlord_as_common(self):
         """
         Should successfully filter property by given landlord id when
         requested by common user
@@ -992,36 +634,8 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
             'next': None,
             'previous': None,
             'results': [
-                {
-                    'id': self.property_four.id,
-                    'city': self.property_four.city,
-                    'street': self.property_four.street,
-                    'number': self.property_four.number,
-                    'zip_code': self.property_four.zip_code,
-                    'category': self.property_four.category,
-                    'beds': self.property_four.beds,
-                    'description': self.property_four.description,
-                    'landlord': {
-                        'id': self.landlord_one.id,
-                        'name': self.landlord_one.get_full_name(),
-                        'email': self.landlord_one.email
-                    }
-                },
-                {
-                    'id': self.property_one.id,
-                    'city': self.property_one.city,
-                    'street': self.property_one.street,
-                    'number': self.property_one.number,
-                    'zip_code': self.property_one.zip_code,
-                    'category': self.property_one.category,
-                    'beds': self.property_one.beds,
-                    'description': self.property_one.description,
-                    'landlord': {
-                        'id': self.landlord_one.id,
-                        'name': self.landlord_one.get_full_name(),
-                        'email': self.landlord_one.email
-                    }
-                }
+                self.all_results[0],
+                self.all_results[1]
             ]
         }
         params = {'landlord_id': self.landlord_one.id}
@@ -1030,7 +644,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, expected_data)
 
-    def test_filter_property_by_zipcode(self):
+    def test_filter_property_by_zipcode_as_common(self):
         """
         Should successfully filter property by given zipcode when
         requested by common user
@@ -1040,21 +654,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
             'next': None,
             'previous': None,
             'results': [
-                {
-                    'id': self.property_four.id,
-                    'city': self.property_four.city,
-                    'street': self.property_four.street,
-                    'number': self.property_four.number,
-                    'zip_code': self.property_four.zip_code,
-                    'category': self.property_four.category,
-                    'beds': self.property_four.beds,
-                    'description': self.property_four.description,
-                    'landlord': {
-                        'id': self.landlord_one.id,
-                        'name': self.landlord_one.get_full_name(),
-                        'email': self.landlord_one.email
-                    }
-                }
+                self.all_results[0]
             ]
         }
         params = {'zipcode': self.property_four.zip_code}
@@ -1063,7 +663,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, expected_data)
 
-    def test_filter_property_by_street(self):
+    def test_filter_property_by_street_as_common(self):
         """
         Should successfully filter property by given street when
         requested by common user
@@ -1073,21 +673,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
             'next': None,
             'previous': None,
             'results': [
-                {
-                    'id': self.property_three.id,
-                    'city': self.property_three.city,
-                    'street': self.property_three.street,
-                    'number': self.property_three.number,
-                    'zip_code': self.property_three.zip_code,
-                    'category': self.property_three.category,
-                    'beds': self.property_three.beds,
-                    'description': self.property_three.description,
-                    'landlord': {
-                        'id': self.landlord_three.id,
-                        'name': self.landlord_three.get_full_name(),
-                        'email': self.landlord_three.email
-                    }
-                }
+                self.all_results[2]
             ]
         }
         params = {'street': self.property_three.street}
@@ -1096,7 +682,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, expected_data)
 
-    def test_filter_property_by_category(self):
+    def test_filter_property_by_category_as_common(self):
         """
         Should successfully filter property by given category when
         requested by common user
@@ -1106,36 +692,8 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
             'next': None,
             'previous': None,
             'results': [
-                {
-                    'id': self.property_one.id,
-                    'city': self.property_one.city,
-                    'street': self.property_one.street,
-                    'number': self.property_one.number,
-                    'zip_code': self.property_one.zip_code,
-                    'category': self.property_one.category,
-                    'beds': self.property_one.beds,
-                    'description': self.property_one.description,
-                    'landlord': {
-                        'id': self.landlord_one.id,
-                        'name': self.landlord_one.get_full_name(),
-                        'email': self.landlord_one.email
-                    }
-                },
-                {
-                    'id': self.property_three.id,
-                    'city': self.property_three.city,
-                    'street': self.property_three.street,
-                    'number': self.property_three.number,
-                    'zip_code': self.property_three.zip_code,
-                    'category': self.property_three.category,
-                    'beds': self.property_three.beds,
-                    'description': self.property_three.description,
-                    'landlord': {
-                        'id': self.landlord_three.id,
-                        'name': self.landlord_three.get_full_name(),
-                        'email': self.landlord_three.email
-                    }
-                }
+                self.all_results[1],
+                self.all_results[2]
             ]
         }
         params = {'category': 'house'}
@@ -1154,36 +712,8 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
             'next': None,
             'previous': None,
             'results': [
-                {
-                    'id': self.property_four.id,
-                    'city': self.property_four.city,
-                    'street': self.property_four.street,
-                    'number': self.property_four.number,
-                    'zip_code': self.property_four.zip_code,
-                    'category': self.property_four.category,
-                    'beds': self.property_four.beds,
-                    'description': self.property_four.description,
-                    'landlord': {
-                        'id': self.landlord_one.id,
-                        'name': self.landlord_one.get_full_name(),
-                        'email': self.landlord_one.email
-                    }
-                },
-                {
-                    'id': self.property_two.id,
-                    'city': self.property_two.city,
-                    'street': self.property_two.street,
-                    'number': self.property_two.number,
-                    'zip_code': self.property_two.zip_code,
-                    'category': self.property_two.category,
-                    'beds': self.property_two.beds,
-                    'description': self.property_two.description,
-                    'landlord': {
-                        'id': self.landlord_two.id,
-                        'name': self.landlord_two.get_full_name(),
-                        'email': self.landlord_two.email
-                    }
-                }
+                self.all_results[0],
+                self.all_results[3]
             ]
         }
         params = {'beds': '1'}
@@ -1192,7 +722,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, expected_data)
 
-    def test_filter_property_invalid_category(self):
+    def test_filter_property_invalid_category_as_common(self):
         """
         Should return 400 when given category is invalid and
         requested by common user
@@ -1204,7 +734,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data, expected_data)
 
-    def test_filter_property_invalid_beds(self):
+    def test_filter_property_invalid_beds_as_common(self):
         """
         Should return 400 when given number of beds is invalid and
         requested by common user
@@ -1216,7 +746,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data, expected_data)
 
-    def test_filter_property_multiple_filter(self):
+    def test_filter_property_multiple_filter_as_common(self):
         """
         Should successfully filter property by given multiple filters when
         requested by common user
@@ -1226,21 +756,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
             'next': None,
             'previous': None,
             'results': [
-                {
-                    'id': self.property_four.id,
-                    'city': self.property_four.city,
-                    'street': self.property_four.street,
-                    'number': self.property_four.number,
-                    'zip_code': self.property_four.zip_code,
-                    'category': self.property_four.category,
-                    'beds': self.property_four.beds,
-                    'description': self.property_four.description,
-                    'landlord': {
-                        'id': self.landlord_one.id,
-                        'name': self.landlord_one.get_full_name(),
-                        'email': self.landlord_one.email
-                    }
-                }
+                self.all_results[0]
             ]
         }
         params = {
@@ -1252,74 +768,13 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, expected_data)
 
-    def test_list_properties_disabled_pagination(self):
+    def test_list_properties_disabled_pagination_as_common(self):
         """
         Should successfully list all properties with no pagination when
         parameter is given and requested by common user
         """
 
-        expected_data = [
-            {
-                'id': self.property_four.id,
-                'city': self.property_four.city,
-                'street': self.property_four.street,
-                'number': self.property_four.number,
-                'zip_code': self.property_four.zip_code,
-                'category': self.property_four.category,
-                'beds': self.property_four.beds,
-                'description': self.property_four.description,
-                'landlord': {
-                    'id': self.landlord_one.id,
-                    'name': self.landlord_one.get_full_name(),
-                    'email': self.landlord_one.email
-                }
-            },
-            {
-                'id': self.property_one.id,
-                'city': self.property_one.city,
-                'street': self.property_one.street,
-                'number': self.property_one.number,
-                'zip_code': self.property_one.zip_code,
-                'category': self.property_one.category,
-                'beds': self.property_one.beds,
-                'description': self.property_one.description,
-                'landlord': {
-                    'id': self.landlord_one.id,
-                    'name': self.landlord_one.get_full_name(),
-                    'email': self.landlord_one.email
-                }
-            },
-            {
-                'id': self.property_three.id,
-                'city': self.property_three.city,
-                'street': self.property_three.street,
-                'number': self.property_three.number,
-                'zip_code': self.property_three.zip_code,
-                'category': self.property_three.category,
-                'beds': self.property_three.beds,
-                'description': self.property_three.description,
-                'landlord': {
-                    'id': self.landlord_three.id,
-                    'name': self.landlord_three.get_full_name(),
-                    'email': self.landlord_three.email
-                }
-            },
-            {
-                'id': self.property_two.id,
-                'city': self.property_two.city,
-                'street': self.property_two.street,
-                'number': self.property_two.number,
-                'zip_code': self.property_two.zip_code,
-                'category': self.property_two.category,
-                'beds': self.property_two.beds,
-                'description': self.property_two.description,
-                'landlord': {
-                    'id': self.landlord_two.id,
-                    'name': self.landlord_two.get_full_name(),
-                    'email': self.landlord_two.email
-                }
-            }
-        ]
+        expected_data = self.all_results
         params = {'page_size': 'none'}
         response = self.client.get(
             '/api/properties', params, **self.common_headers)
@@ -1337,21 +792,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
             'next': 'http://testserver/api/properties?page=2&page_size=1',
             'previous': None,
             'results': [
-                {
-                    'id': self.property_four.id,
-                    'city': self.property_four.city,
-                    'street': self.property_four.street,
-                    'number': self.property_four.number,
-                    'zip_code': self.property_four.zip_code,
-                    'category': self.property_four.category,
-                    'beds': self.property_four.beds,
-                    'description': self.property_four.description,
-                    'landlord': {
-                        'id': self.landlord_one.id,
-                        'name': self.landlord_one.get_full_name(),
-                        'email': self.landlord_one.email
-                    }
-                }
+                self.all_results[0]
             ]
         }
         params = {'page_size': '1'}
@@ -1370,21 +811,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
             'next': 'http://testserver/api/properties?page=4&page_size=1',
             'previous': 'http://testserver/api/properties?page=2&page_size=1',
             'results': [
-                {
-                    'id': self.property_three.id,
-                    'city': self.property_three.city,
-                    'street': self.property_three.street,
-                    'number': self.property_three.number,
-                    'zip_code': self.property_three.zip_code,
-                    'category': self.property_three.category,
-                    'beds': self.property_three.beds,
-                    'description': self.property_three.description,
-                    'landlord': {
-                        'id': self.landlord_three.id,
-                        'name': self.landlord_three.get_full_name(),
-                        'email': self.landlord_three.email
-                    }
-                }
+                self.all_results[2]
             ]
         }
         params = {'page_size': '1', 'page': 3}

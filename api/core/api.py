@@ -7,11 +7,13 @@ from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
 
 from accounts.views import LandlordView, TenantView
 from properties.views import PropertyView
+from contracts.views import ContractView
 
 router = routers.DefaultRouter(trailing_slash=False)
 router.register(r'landlords', LandlordView, base_name='landlords')
 router.register(r'tenants', TenantView, base_name='tenants')
 router.register(r'properties', PropertyView, base_name='properties')
+router.register(r'contracts', ContractView, base_name='contracts')
 
 
 urlpatterns = [
