@@ -7,7 +7,9 @@ from rest_framework import status
 
 
 def parse_error_messages(message_container):
-    """Best effort function that tries to parse error message into a plain string"""
+    """
+    Best effort function that tries to parse error message into a plain string
+    """
     final_msg = ""
     if isinstance(message_container, dict):
         for key in message_container.keys():

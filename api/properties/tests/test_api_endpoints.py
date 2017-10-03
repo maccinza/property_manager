@@ -186,7 +186,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(response.data, expected)
 
-    def test_filter_property_by_city(self):
+    def test_filter_property_by_city_as_staff(self):
         """
         Should successfully filter property by given city when
         requested by staff user
@@ -234,7 +234,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, expected_data)
 
-    def test_filter_property_by_landlord(self):
+    def test_filter_property_by_landlord_as_staff(self):
         """
         Should successfully filter property by given landlord id when
         requested by staff user
@@ -282,7 +282,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, expected_data)
 
-    def test_filter_property_by_zipcode(self):
+    def test_filter_property_by_zipcode_as_staff(self):
         """
         Should successfully filter property by given zipcode when
         requested by staff user
@@ -315,7 +315,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, expected_data)
 
-    def test_filter_property_by_street(self):
+    def test_filter_property_by_street_as_staff(self):
         """
         Should successfully filter property by given street when
         requested by staff user
@@ -348,7 +348,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, expected_data)
 
-    def test_filter_property_by_category(self):
+    def test_filter_property_by_category_as_staff(self):
         """
         Should successfully filter property by given category when
         requested by staff user
@@ -444,7 +444,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, expected_data)
 
-    def test_filter_property_invalid_category(self):
+    def test_filter_property_invalid_category_as_staff(self):
         """
         Should return 400 when given category is invalid and
         requested by staff user
@@ -456,7 +456,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data, expected_data)
 
-    def test_filter_property_invalid_beds(self):
+    def test_filter_property_invalid_beds_as_staff(self):
         """
         Should return 400 when given number of beds is invalid and
         requested by staff user
@@ -468,7 +468,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data, expected_data)
 
-    def test_filter_property_multiple_filter(self):
+    def test_filter_property_multiple_filter_as_staff(self):
         """
         Should successfully filter property by given multiple filters when
         requested by staff user
@@ -504,7 +504,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, expected_data)
 
-    def test_list_properties_disabled_pagination(self):
+    def test_list_properties_disabled_pagination_as_staff(self):
         """
         Should successfully list all properties with no pagination when
         parameter is given and requested by staff user
@@ -934,7 +934,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(response.data, expected)
 
-    def test_filter_property_by_city(self):
+    def test_filter_property_by_city_as_common(self):
         """
         Should successfully filter property by given city when
         requested by common user
@@ -982,7 +982,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, expected_data)
 
-    def test_filter_property_by_landlord(self):
+    def test_filter_property_by_landlord_as_common(self):
         """
         Should successfully filter property by given landlord id when
         requested by common user
@@ -1030,7 +1030,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, expected_data)
 
-    def test_filter_property_by_zipcode(self):
+    def test_filter_property_by_zipcode_as_common(self):
         """
         Should successfully filter property by given zipcode when
         requested by common user
@@ -1063,7 +1063,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, expected_data)
 
-    def test_filter_property_by_street(self):
+    def test_filter_property_by_street_as_common(self):
         """
         Should successfully filter property by given street when
         requested by common user
@@ -1096,7 +1096,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, expected_data)
 
-    def test_filter_property_by_category(self):
+    def test_filter_property_by_category_as_common(self):
         """
         Should successfully filter property by given category when
         requested by common user
@@ -1192,7 +1192,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, expected_data)
 
-    def test_filter_property_invalid_category(self):
+    def test_filter_property_invalid_category_as_common(self):
         """
         Should return 400 when given category is invalid and
         requested by common user
@@ -1204,7 +1204,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data, expected_data)
 
-    def test_filter_property_invalid_beds(self):
+    def test_filter_property_invalid_beds_as_common(self):
         """
         Should return 400 when given number of beds is invalid and
         requested by common user
@@ -1216,7 +1216,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data, expected_data)
 
-    def test_filter_property_multiple_filter(self):
+    def test_filter_property_multiple_filter_as_common(self):
         """
         Should successfully filter property by given multiple filters when
         requested by common user
@@ -1252,7 +1252,7 @@ class TestPropertyEndpoints(JWTAuthenticationTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, expected_data)
 
-    def test_list_properties_disabled_pagination(self):
+    def test_list_properties_disabled_pagination_as_common(self):
         """
         Should successfully list all properties with no pagination when
         parameter is given and requested by common user

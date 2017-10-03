@@ -3,8 +3,6 @@ import factory
 from django.test import TestCase
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 
-from properties.models import Property
-from accounts.models import Tenant, Landlord
 from contracts.models import Contract
 from contracts.tests.factories import ContractFactory
 

@@ -55,7 +55,7 @@ class TestContractsReportCommand(TestCase):
                                        self.contract_one.id), content)
         self.assertIn('<td> {} </td>'.format(
             self.contract_one.end_date.strftime(
-            '%Y-%m-%d')), content)
+                '%Y-%m-%d')), content)
         self.assertIn('<td> {} </td>'.format(
             self.contract_one.property.__unicode__()), content)
         self.assertIn('<td> {} </td>'.format(
@@ -69,7 +69,7 @@ class TestContractsReportCommand(TestCase):
                                             self.contract_two.id), content)
         self.assertIn('<td> {} </td>'.format(
             self.contract_two.end_date.strftime(
-            '%Y-%m-%d')), content)
+                '%Y-%m-%d')), content)
         self.assertIn('<td> {} </td>'.format(
             self.contract_two.property.__unicode__()), content)
         self.assertIn('<td> {} </td>'.format(
