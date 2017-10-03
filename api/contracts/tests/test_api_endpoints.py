@@ -917,5 +917,3 @@ class TestContractEndpoints(JWTAuthenticationTestCase):
             '/api/contracts', params, **self.common_headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, expected)
-
-
