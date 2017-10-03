@@ -1,20 +1,813 @@
 [
 {
-    "model": "auth.user",
-    "pk": 1,
-    "fields": {
-        "password": "pbkdf2_sha256$36000$SGODYVQljSnQ$ct4lL3AuTqUXO/iKZyaDguJ5DAF75lCM2WHo5ydCrHI=",
-        "last_login": "2017-09-19T13:41:42.223Z",
-        "is_superuser": true,
-        "first_name": "David",
-        "last_name": "Farrington",
-        "username": "david_farrington",
-        "email": "david.farrington@gamesys.co.uk",
-        "is_staff": true,
-        "is_active": true,
-        "date_joined": "2017-09-19T13:40:42.223Z",
-        "groups": [],
-        "user_permissions": []
-    }
+  "model": "contenttypes.contenttype",
+  "pk": 1,
+  "fields": {
+    "app_label": "admin",
+    "model": "logentry"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 2,
+  "fields": {
+    "app_label": "auth",
+    "model": "group"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 3,
+  "fields": {
+    "app_label": "auth",
+    "model": "permission"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 4,
+  "fields": {
+    "app_label": "auth",
+    "model": "user"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 5,
+  "fields": {
+    "app_label": "contenttypes",
+    "model": "contenttype"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 6,
+  "fields": {
+    "app_label": "sessions",
+    "model": "session"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 7,
+  "fields": {
+    "app_label": "accounts",
+    "model": "landlord"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 8,
+  "fields": {
+    "app_label": "accounts",
+    "model": "tenant"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 9,
+  "fields": {
+    "app_label": "properties",
+    "model": "property"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 10,
+  "fields": {
+    "app_label": "contracts",
+    "model": "contract"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "7ksjh8qf9l0n5l8dvqdmpsdxphcc93bq",
+  "fields": {
+    "session_data": "NDgxYzM2ZjQ2ODE4MzJiNjA3YmVjNzlmMGExNWFmYzBkZmQyZjUyODp7Il9hdXRoX3VzZXJfaGFzaCI6IjI3MWRkNWExOTc3ZWY5YTdjY2I0ZWYwZmI3YzkyZTdiZjE2N2M2MjEiLCJfYXV0aF91c2VyX2JhY2tlbmQiOiJkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZCIsIl9hdXRoX3VzZXJfaWQiOiIxIn0=",
+    "expire_date": "2017-10-15T20:29:19.697Z"
+  }
+},
+{
+  "model": "accounts.landlord",
+  "pk": "1dlbwj52oki0z9hq",
+  "fields": {
+    "first_name": "Corey",
+    "last_name": "Smith",
+    "email": "landlordsmith@fake.mail"
+  }
+},
+{
+  "model": "accounts.landlord",
+  "pk": "8mo1ef5uys6v0ctd",
+  "fields": {
+    "first_name": "Angelina",
+    "last_name": "Jolie",
+    "email": "anjolie@email.com"
+  }
+},
+{
+  "model": "accounts.landlord",
+  "pk": "h1psv3wlcfa06myz",
+  "fields": {
+    "first_name": "John",
+    "last_name": "Snow",
+    "email": "landlordone@fake.mail"
+  }
+},
+{
+  "model": "accounts.landlord",
+  "pk": "i4shuj7n30a89pxr",
+  "fields": {
+    "first_name": "Simone",
+    "last_name": "Simons",
+    "email": "landlordthree@fake.mail"
+  }
+},
+{
+  "model": "accounts.tenant",
+  "pk": "huzta31lvf4qos6j",
+  "fields": {
+    "first_name": "Scott",
+    "last_name": "Summers",
+    "email": "tenantthree@fake.mail"
+  }
+},
+{
+  "model": "accounts.tenant",
+  "pk": "jg7r6yin4to0vuca",
+  "fields": {
+    "first_name": "George",
+    "last_name": "Orwell",
+    "email": "tenantone@fake.mail"
+  }
+},
+{
+  "model": "accounts.tenant",
+  "pk": "nb2ed8k0ugs6j7cv",
+  "fields": {
+    "first_name": "Jean",
+    "last_name": "Grey",
+    "email": "tenanttwo@fake.mail"
+  }
+},
+{
+  "model": "properties.property",
+  "pk": "18ywnkaz64htipco",
+  "fields": {
+    "street": "Secret Gardens",
+    "number": "54",
+    "zip_code": "UX9087DC",
+    "city": "London",
+    "description": "Really interesting and comfortable place.",
+    "category": "flat",
+    "beds": "1",
+    "landlord": "h1psv3wlcfa06myz"
+  }
+},
+{
+  "model": "properties.property",
+  "pk": "fcj87rotwuhvs93b",
+  "fields": {
+    "street": "Baker Street",
+    "number": "99",
+    "zip_code": "RXC17NB",
+    "city": "London",
+    "description": "Amazing opportunity.",
+    "category": "apartment",
+    "beds": "3",
+    "landlord": "8mo1ef5uys6v0ctd"
+  }
+},
+{
+  "model": "properties.property",
+  "pk": "p6uo14jgv7tk9e2a",
+  "fields": {
+    "street": "Royal Gardens",
+    "number": "707",
+    "zip_code": "XWE800BT",
+    "city": "Cambridge",
+    "description": "Very nicely decorated place.",
+    "category": "apartment",
+    "beds": "1",
+    "landlord": "8mo1ef5uys6v0ctd"
+  }
+},
+{
+  "model": "properties.property",
+  "pk": "rej871soltaviy9f",
+  "fields": {
+    "street": "Imperial Avenue",
+    "number": "46",
+    "zip_code": "SY10WXE",
+    "city": "South Yorkshire",
+    "description": "Quiet and comfortable place to live.",
+    "category": "flat",
+    "beds": "1",
+    "landlord": "i4shuj7n30a89pxr"
+  }
+},
+{
+  "model": "properties.property",
+  "pk": "s0u27g9djx6fqbr5",
+  "fields": {
+    "street": "Walkers Street",
+    "number": "71",
+    "zip_code": "SY17UIBV",
+    "city": "South Yorkshire",
+    "description": "Big building with an incredible space.",
+    "category": "other",
+    "beds": "4+",
+    "landlord": "1dlbwj52oki0z9hq"
+  }
+},
+{
+  "model": "properties.property",
+  "pk": "ze0jf6th2qgd8kxl",
+  "fields": {
+    "street": "First Avenue",
+    "number": "101",
+    "zip_code": "XEBGWXZ",
+    "city": "Lancaster",
+    "description": "An amazing and peaceful location.",
+    "category": "house",
+    "beds": "2",
+    "landlord": "1dlbwj52oki0z9hq"
+  }
+},
+{
+  "model": "contracts.contract",
+  "pk": "1ohjtvkcml2zgsqn",
+  "fields": {
+    "created": "2017-10-03T05:26:06.205Z",
+    "start_date": "2017-10-03",
+    "end_date": "2018-10-03",
+    "property": "p6uo14jgv7tk9e2a",
+    "tenant": "huzta31lvf4qos6j",
+    "rent": "895.00"
+  }
+},
+{
+  "model": "contracts.contract",
+  "pk": "9x31q65ycl8efzrw",
+  "fields": {
+    "created": "2017-10-03T05:26:45.641Z",
+    "start_date": "2017-11-09",
+    "end_date": "2018-11-09",
+    "property": "ze0jf6th2qgd8kxl",
+    "tenant": "jg7r6yin4to0vuca",
+    "rent": "1100.25"
+  }
+},
+{
+  "model": "contracts.contract",
+  "pk": "c5480hiaeuylwrpj",
+  "fields": {
+    "created": "2017-10-03T05:27:31.960Z",
+    "start_date": "2017-12-20",
+    "end_date": "2018-12-20",
+    "property": "18ywnkaz64htipco",
+    "tenant": "nb2ed8k0ugs6j7cv",
+    "rent": "978.45"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 1,
+  "fields": {
+    "name": "Can add log entry",
+    "content_type": 1,
+    "codename": "add_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 2,
+  "fields": {
+    "name": "Can change log entry",
+    "content_type": 1,
+    "codename": "change_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 3,
+  "fields": {
+    "name": "Can delete log entry",
+    "content_type": 1,
+    "codename": "delete_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 4,
+  "fields": {
+    "name": "Can add group",
+    "content_type": 2,
+    "codename": "add_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 5,
+  "fields": {
+    "name": "Can change group",
+    "content_type": 2,
+    "codename": "change_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 6,
+  "fields": {
+    "name": "Can delete group",
+    "content_type": 2,
+    "codename": "delete_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 7,
+  "fields": {
+    "name": "Can add permission",
+    "content_type": 3,
+    "codename": "add_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 8,
+  "fields": {
+    "name": "Can change permission",
+    "content_type": 3,
+    "codename": "change_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 9,
+  "fields": {
+    "name": "Can delete permission",
+    "content_type": 3,
+    "codename": "delete_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 10,
+  "fields": {
+    "name": "Can add user",
+    "content_type": 4,
+    "codename": "add_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 11,
+  "fields": {
+    "name": "Can change user",
+    "content_type": 4,
+    "codename": "change_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 12,
+  "fields": {
+    "name": "Can delete user",
+    "content_type": 4,
+    "codename": "delete_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 13,
+  "fields": {
+    "name": "Can add content type",
+    "content_type": 5,
+    "codename": "add_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 14,
+  "fields": {
+    "name": "Can change content type",
+    "content_type": 5,
+    "codename": "change_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 15,
+  "fields": {
+    "name": "Can delete content type",
+    "content_type": 5,
+    "codename": "delete_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 16,
+  "fields": {
+    "name": "Can add session",
+    "content_type": 6,
+    "codename": "add_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 17,
+  "fields": {
+    "name": "Can change session",
+    "content_type": 6,
+    "codename": "change_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 18,
+  "fields": {
+    "name": "Can delete session",
+    "content_type": 6,
+    "codename": "delete_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 19,
+  "fields": {
+    "name": "Can add landlord",
+    "content_type": 7,
+    "codename": "add_landlord"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 20,
+  "fields": {
+    "name": "Can change landlord",
+    "content_type": 7,
+    "codename": "change_landlord"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 21,
+  "fields": {
+    "name": "Can delete landlord",
+    "content_type": 7,
+    "codename": "delete_landlord"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 22,
+  "fields": {
+    "name": "Can add tenant",
+    "content_type": 8,
+    "codename": "add_tenant"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 23,
+  "fields": {
+    "name": "Can change tenant",
+    "content_type": 8,
+    "codename": "change_tenant"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 24,
+  "fields": {
+    "name": "Can delete tenant",
+    "content_type": 8,
+    "codename": "delete_tenant"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 25,
+  "fields": {
+    "name": "Can add Property",
+    "content_type": 9,
+    "codename": "add_property"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 26,
+  "fields": {
+    "name": "Can change Property",
+    "content_type": 9,
+    "codename": "change_property"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 27,
+  "fields": {
+    "name": "Can delete Property",
+    "content_type": 9,
+    "codename": "delete_property"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 28,
+  "fields": {
+    "name": "Can add contract",
+    "content_type": 10,
+    "codename": "add_contract"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 29,
+  "fields": {
+    "name": "Can change contract",
+    "content_type": 10,
+    "codename": "change_contract"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 30,
+  "fields": {
+    "name": "Can delete contract",
+    "content_type": 10,
+    "codename": "delete_contract"
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$36000$SGODYVQljSnQ$ct4lL3AuTqUXO/iKZyaDguJ5DAF75lCM2WHo5ydCrHI=",
+    "last_login": "2017-10-01T20:29:19.693Z",
+    "is_superuser": true,
+    "username": "david_farrington",
+    "first_name": "David",
+    "last_name": "Farrington",
+    "email": "david.farrington@gamesys.co.uk",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2017-09-19T13:40:42.223Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 2,
+  "fields": {
+    "password": "pbkdf2_sha256$36000$ccyTXL5JSwO6$B71QQ4644V97+Lt7wVZeUleUvDCXTSrIDViLTzRZLHI=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "jude_law",
+    "first_name": "Jude",
+    "last_name": "Law",
+    "email": "jude_law@mail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2017-10-02T03:49:36Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 1,
+  "fields": {
+    "action_time": "2017-10-01T20:04:57.934Z",
+    "user": 1,
+    "content_type": 7,
+    "object_id": "h1psv3wlcfa06myz",
+    "object_repr": "Landlord object",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 2,
+  "fields": {
+    "action_time": "2017-10-01T20:05:19.598Z",
+    "user": 1,
+    "content_type": 7,
+    "object_id": "27816zeqbnxa4ri9",
+    "object_repr": "Landlord object",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 3,
+  "fields": {
+    "action_time": "2017-10-01T20:05:32.791Z",
+    "user": 1,
+    "content_type": 7,
+    "object_id": "i4shuj7n30a89pxr",
+    "object_repr": "Landlord object",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 4,
+  "fields": {
+    "action_time": "2017-10-01T20:38:47.703Z",
+    "user": 1,
+    "content_type": 8,
+    "object_id": "jg7r6yin4to0vuca",
+    "object_repr": "Tenant object",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 5,
+  "fields": {
+    "action_time": "2017-10-01T20:39:06.338Z",
+    "user": 1,
+    "content_type": 8,
+    "object_id": "nb2ed8k0ugs6j7cv",
+    "object_repr": "Tenant object",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 6,
+  "fields": {
+    "action_time": "2017-10-01T20:39:21.991Z",
+    "user": 1,
+    "content_type": 8,
+    "object_id": "huzta31lvf4qos6j",
+    "object_repr": "Tenant object",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 7,
+  "fields": {
+    "action_time": "2017-10-02T03:49:36.979Z",
+    "user": 1,
+    "content_type": 4,
+    "object_id": "2",
+    "object_repr": "jude_law",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 8,
+  "fields": {
+    "action_time": "2017-10-02T03:49:51.152Z",
+    "user": 1,
+    "content_type": 4,
+    "object_id": "2",
+    "object_repr": "jude_law",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"first_name\", \"last_name\", \"email\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 9,
+  "fields": {
+    "action_time": "2017-10-02T20:18:33.748Z",
+    "user": 1,
+    "content_type": 9,
+    "object_id": "ze0jf6th2qgd8kxl",
+    "object_repr": "House at First Avenue, 101 - Lancaster",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 10,
+  "fields": {
+    "action_time": "2017-10-02T20:19:26.920Z",
+    "user": 1,
+    "content_type": 9,
+    "object_id": "fcj87rotwuhvs93b",
+    "object_repr": "Apartment at Baker Street, 99 - London",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 11,
+  "fields": {
+    "action_time": "2017-10-02T20:20:51.023Z",
+    "user": 1,
+    "content_type": 9,
+    "object_id": "18ywnkaz64htipco",
+    "object_repr": "Flat at Royal Family Avenue, 54 - London",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 12,
+  "fields": {
+    "action_time": "2017-10-02T20:22:02.782Z",
+    "user": 1,
+    "content_type": 9,
+    "object_id": "s0u27g9djx6fqbr5",
+    "object_repr": "Other at Walkers Street, 71 - South Yorkshire",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 13,
+  "fields": {
+    "action_time": "2017-10-02T20:23:32.840Z",
+    "user": 1,
+    "content_type": 9,
+    "object_id": "rej871soltaviy9f",
+    "object_repr": "Flat at Imperial Avenue, 46 - South Yorkshire",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 14,
+  "fields": {
+    "action_time": "2017-10-02T20:30:06.862Z",
+    "user": 1,
+    "content_type": 9,
+    "object_id": "rej871soltaviy9f",
+    "object_repr": "Flat at Imperial Avenue, 46 - South Yorkshire",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"landlord\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 15,
+  "fields": {
+    "action_time": "2017-10-02T20:30:57.092Z",
+    "user": 1,
+    "content_type": 9,
+    "object_id": "ze0jf6th2qgd8kxl",
+    "object_repr": "House at First Avenue, 101 - Lancaster",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"description\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 16,
+  "fields": {
+    "action_time": "2017-10-03T05:26:06.206Z",
+    "user": 1,
+    "content_type": 10,
+    "object_id": "1ohjtvkcml2zgsqn",
+    "object_repr": "Tenant Scott Summers - Property #p6uo14jgv7tk9e2a, from 2017-10-03 to 2018-10-03",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 17,
+  "fields": {
+    "action_time": "2017-10-03T05:26:45.643Z",
+    "user": 1,
+    "content_type": 10,
+    "object_id": "9x31q65ycl8efzrw",
+    "object_repr": "Tenant George Orwell - Property #ze0jf6th2qgd8kxl, from 2017-11-09 to 2018-11-09",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 18,
+  "fields": {
+    "action_time": "2017-10-03T05:27:31.961Z",
+    "user": 1,
+    "content_type": 10,
+    "object_id": "c5480hiaeuylwrpj",
+    "object_repr": "Tenant Jean Grey - Property #18ywnkaz64htipco, from 2017-12-20 to 2018-12-20",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
 }
 ]
