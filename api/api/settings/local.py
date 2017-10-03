@@ -7,3 +7,6 @@ DATABASES = {
         'NAME': 'property_management.sqlite',
     }
 }
+
+DEBUG = True
+ALLOWED_HOSTS = []

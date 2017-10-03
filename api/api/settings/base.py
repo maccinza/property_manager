@@ -13,6 +13,23 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 import os
 from datetime import timedelta
 
+
+def get_boolean_option(environment, var_name):
+    """
+    Returns boolean value for variable var_name defined in system
+    environment
+    """
+    return environment.get(var_name, '').lower() in ('1', 'true', 'yes')
+
+
+def get_list_option(environment, var_name):
+    """
+    Returns list with values for variable var_name defined in system
+    environment
+    """
+    return environment.get(var_name, '').split(',')
+
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -24,10 +41,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '=k&u+hd(6(7&pc5^qw97r3tzj9(0h=$d4%mvu-e#hrq2q8=kc$'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = get_boolean_option(os.environ, 'DEBUG')
 
 ALLOWED_HOSTS = []
-
+if not DEBUG:
+    ALLOWED_HOSTS = get_list_option(os.environ, 'ALLOWED_HOSTS')
 
 # Application definition
 
