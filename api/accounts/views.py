@@ -35,6 +35,46 @@ class LandlordView(mixins.RetrieveModelMixin,
 
         `GET /landlords?search=:query`
 
+    *  Create landlord:
+
+        `POST /landlords`
+
+        Sample payload:
+
+        ```
+        {
+            'first_name': 'John',
+            'last_name': 'Doe',
+            'email': 'john@email.com'
+        }
+        ```
+
+    *  Update landlord:
+
+        `PUT /landlords/:id`
+
+        Sample payload:
+
+        ```
+        {
+            'first_name': 'John',
+            'last_name': 'Doe',
+            'email': 'john@email.com'
+        }
+        ```
+
+    * Partially update landlord:
+
+        `PATCH /landlords/:id`
+
+        Sample payload:
+
+        ```
+        {
+            'email': 'johnny@email.com'
+        }
+        ```
+
     Pagination parameters:
 
     *   `page`: specifies the page number. If not provided, page 1 is rendered.
@@ -102,6 +142,46 @@ class TenantView(mixins.RetrieveModelMixin,
     *   Search by tenant name:
 
         `GET /tenants?search=:query`
+
+    *  Create Tenant:
+
+        `POST /tenants`
+
+        Sample payload:
+
+        ```
+        {
+            'first_name': 'John',
+            'last_name': 'Doe',
+            'email': 'john@email.com'
+        }
+        ```
+
+    *  Update Tenant:
+
+        `PUT /tenants/:id`
+
+        Sample payload:
+
+        ```
+        {
+            'first_name': 'John',
+            'last_name': 'Doe',
+            'email': 'john@email.com'
+        }
+        ```
+
+    * Partially update Tenant:
+
+        `PATCH /tenants/:id`
+
+        Sample payload:
+
+        ```
+        {
+            'email': 'johnny@email.com'
+        }
+        ```
 
     Pagination parameters:
 
