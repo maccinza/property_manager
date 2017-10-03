@@ -55,7 +55,7 @@ export DOCKER_HOST=tcp://127.0.0.1:4243
 
 ## Option II - Using local environment
 
-If you go with this option you don't need to be concerned about anything. You may completely rely on the provided makefile.
+If you go with this option you only need to assure you have virtualenv installed, all the rest is resolved by the makefile.
 
 
 ## Running
@@ -63,23 +63,28 @@ If you go with this option you don't need to be concerned about anything. You ma
 If you went with `Option I - Using Docker`, you may run the following commands from your shell:
 
 ```
-# run tests
+# it will build the environment if not yet build
+# and run tests
 $ make docker-test
 ```
 
 ```
-# run application locally
+# it will build the environment if not yet build
+# and run the application locally
+# if you run this option you'll need to wait a little time while mysql gets up and running
 $ make docker-run
 ```
 
 If you went with `Option II - Using local environment`, you may run the following commands from your shell:
 ```
-# run tests
+# it will build the environment if not yet build
+# and run tests
 $ make local-test
 ```
 
 ```
-# run application locally
+# it will build the environment if not yet build
+# and run the application locally
 $ make local-run
 ```
 
