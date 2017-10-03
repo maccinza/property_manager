@@ -46,5 +46,8 @@ class PropertyBaseUser(HashIdModel):
         full_name = '{} {}'.format(self.first_name, self.last_name)
         return full_name.strip()
 
+    def __unicode__(self):
+        return self.get_full_name()
+
     class Meta:
         abstract = True
